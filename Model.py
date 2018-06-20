@@ -37,12 +37,12 @@ class VehicleModel(object):
         self.mu_s = params['mu_s']          # Sliding coeff. of friction
 
 
-    def state_transition(self, X, U):
+    def state_transition(self, X, U, dt):
         """
         Update state after some timestep.
         """
         X_dot = self._dynamics(X, U)
-        X_new = 0
+        X_new = X + X_dot * dt
         return X_new
 
 
@@ -169,7 +169,7 @@ class VehicleModel(object):
             Fy = 0
         else:
             Fx = self.C_x/gamma * (K/(1+K)) * F * spin_dir
-            Fy = -self.C_alpha/gamma * (tan(alpha)/(1+K)) * F
+            Fy = -self.C_alpha/gamma * (np.tan(alpha)/(1+K)) * F
 
         return Fx, Fy
 
