@@ -16,24 +16,25 @@ class VehicleModel(object):
     with brush tire model for tire dynamics.
     """
 
-    def __init__(self):
+    def __init__(self, params):
         """
-        Initialize model parameters.
+        Initialize model parameters from dictionary format to instance
+        variables.
         """
         # Vehicle parameters
-        self.m = 1          # Mass
-        self.L = 1          # Length from front axle to rear axle
-        self.L_f = 1        # Length from CoG to front axle
-        self.L_r = 1        # Length from CoG to rear axle
-        self.load_f = 1     # Load on front axle
-        self.load_r = 1     # Load on rear axle
+        self.m = params['m']                # Mass
+        self.L_f = params['L_f']            # CoG to front axle length
+        self.L_r = params['L_r']            # CoG to rear axle length
+        self.L = self.L_f + self.L_r        # Front to rear axle length
+        self.load_f = params['load_f']      # Load on front axle
+        self.load_r = params['load_r']      # Load on rear axle
 
         # Wheel parameters
-        self.C_x = 1        # Longitudinal stiffness
-        self.C_alpha = 1    # Cornering stiffness
-        self.I_z = 1        # Moment of inertia
-        self.mu = 1         # Coefficient of friction
-        self.mu_s = 1       # Sliding coefficient of friction
+        self.C_x = params['C_x']            # Longitudinal stiffness
+        self.C_alpha = params['C_alpha']    # Cornering stiffness
+        self.I_z = params['I_z']            # Moment of inertia
+        self.mu = params['mu']              # Coeff. of friction
+        self.mu_s = params['mu_s']          # Sliding coeff. of friction
 
 
     def state_transition(self, X, U):

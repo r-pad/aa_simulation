@@ -4,7 +4,13 @@
 @author: edwardahn
 """
 
+import yaml
+
+import numpy as np
 import matplotlib.pyplot as plt
+
+import Model
+from Model import VehicleModel
 
 
 class CarSimulation(object):
@@ -16,11 +22,18 @@ class CarSimulation(object):
         """
         Initialize simulation parameters.
         """
-        pass
+        stream = file('params.yaml', 'r')
+        params = yaml.load(stream)
+        self.model = VehicleModel(params)
 
 
     def update(self, X):
         """
         Update visualization using new state.
         """
-        pass
+        print self.model.state_transition(np.zeros(6), np.zeros(2))
+
+
+if __name__ == '__main__':
+    simulation = CarSimulation()
+    simulation.update(1)
