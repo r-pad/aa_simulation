@@ -98,26 +98,80 @@ class CarSimulation(object):
         """
         Draw car on simulation.
         """
+        # Initialize coordinates and some transformations
         if self.car is None:
             tw2 = self.tw / 2
             self.car_coords = np.array([
                 [-self.L_r, -self.L_r, self.L_f, self.L_f, -self.L_r],
                 [-tw2, tw2, tw2, -tw2, -tw2],
                 [1, 1, 1, 1, 1]])
+            self.wheel_coords = np.array([
+                [-self.wheel_dia, -self.wheel_dia, self.wheel_dia,
+                    self.wheel_dia, -self.wheel_dia],
+                [-self.wheel_w, self.wheel_w, self.wheel_w,
+                    -self.wheel_w, -self.wheel_w],
+                [1, 1, 1, 1, 1]])
+            self.wheel_fr_tf = np.array([
+                [1, 0, self.L_f],
+                [0, 1, -self.tw/2],
+                [0, 0, 1]])
+            self.wheel_fl_tf = np.array([
+                [1, 0, self.L_f],
+                [0, 1, self.tw/2],
+                [0, 0, 1]])
+            self.wheel_rr_tf = np.dot(np.array([
+                [1, 0, -self.L_f],
+                [0, 1, -self.tw/2],
+                [0, 0, 1]]), self.wheel_coords)
+            self.wheel_rl_tf = np.dot(np.array([
+                [1, 0, -self.L_f],
+                [0, 1, self.tw/2],
+                [0, 0, 1]]), self.wheel_coords)
+
+        # Remove previous patches
         else:
             self.car.remove()
+            self.wheel_fr.remove()
+            self.wheel_fl.remove()
+            self.wheel_rr.remove()
+            self.wheel_rl.remove()
 
-        # Apply coordinate transform to car
+        # Get coordinate transformations
+        steer = self.U[1]
         pos_tf = np.array([
             [np.cos(yaw), -np.sin(yaw), x],
             [np.sin(yaw), np.cos(yaw), y],
             [0, 0, 1]])
+        pos_steer = np.array([
+            [np.cos(steer), -np.sin(steer), 0],
+            [np.sin(steer), np.cos(steer), 0],
+            [0, 0, 1]])
+
+        # Apply coordinate transform to chassis and wheels
         pos_body = np.dot(pos_tf, self.car_coords)
+        pos_wheel_fr = reduce(np.dot, [pos_tf, self.wheel_fr_tf,
+            pos_steer, self.wheel_coords])
+        pos_wheel_fl = reduce(np.dot, [pos_tf, self.wheel_fl_tf,
+            pos_steer, self.wheel_coords])
+        pos_wheel_rr = np.dot(pos_tf, self.wheel_rr_tf)
+        pos_wheel_rl = np.dot(pos_tf, self.wheel_rl_tf)
 
         # Draw car onto screen using polygon patches
         self.car = patches.Polygon(pos_body[:2].T, linewidth=1,
                 edgecolor='r', facecolor='none')
+        self.wheel_fr = patches.Polygon(pos_wheel_fr[:2].T, linewidth=1,
+                edgecolor='r', facecolor='none')
+        self.wheel_fl = patches.Polygon(pos_wheel_fl[:2].T, linewidth=1,
+                edgecolor='r', facecolor='none')
+        self.wheel_rr = patches.Polygon(pos_wheel_rr[:2].T, linewidth=1,
+                edgecolor='r', facecolor='none')
+        self.wheel_rl = patches.Polygon(pos_wheel_rl[:2].T, linewidth=1,
+                edgecolor='r', facecolor='none')
         ax.add_patch(self.car)
+        ax.add_patch(self.wheel_fr)
+        ax.add_patch(self.wheel_fl)
+        ax.add_patch(self.wheel_rr)
+        ax.add_patch(self.wheel_rl)
 
 
 if __name__ == '__main__':

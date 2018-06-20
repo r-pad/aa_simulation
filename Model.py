@@ -106,7 +106,7 @@ class VehicleModel(object):
         # alpha > pi/2 means vehicle moving backwards, Fy's sign has
         # to be reversed, hence we multiply by sign(alpha)
         if abs(alpha) > np.pi/2:
-            alpha = (np.pi-abs(alpha))*sign(alpha)
+            alpha = (np.pi-abs(alpha))*np.sign(alpha)
 
         # Compute slip angle where total sliding occurs alpha_sl
         alpha_sl = np.arctan(3*self.mu*self.load_f/self.C_alpha)
@@ -152,7 +152,7 @@ class VehicleModel(object):
         # alpha > pi/2 means vehicle moving backwards, Fy's sign has
         # to be reversed, hence we multiply by sign(alpha)
         if abs(alpha) > np.pi/2:
-            alpha = (np.pi-abs(alpha))*sign(alpha)
+            alpha = (np.pi-abs(alpha))*np.sign(alpha)
 
         # Compute combined slip value gamma
         gamma = np.sqrt( self.C_x**2 * (K/(1+K))**2 + self.C_alpha**2
