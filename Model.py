@@ -3,11 +3,14 @@
 """
 @author: edwardahn
 
+Class defining kinematics and dynamics of a RWD vehicle.
+
 Code based on MATLAB simulation code written by Emily Yunan, located
 at https://github.com/jsford/FFAST.
 """
 
 import numpy as np
+from scipy.integrate import odeint
 
 
 class VehicleModel(object):
@@ -41,12 +44,12 @@ class VehicleModel(object):
         """
         Update state after some timestep.
         """
-        X_dot = self._dynamics(X, U)
-        X_new = X + X_dot * dt
-        return X_new
+        t = np.array([0, dt])
+        X_new = odeint(self._dynamics, X, t, args=(U,))
+        return X_new[1]
 
 
-    def _dynamics(self, X, U):
+    def _dynamics(self, X, t, U):
         """
         Use dynamics model to compute X_dot from X, U.
         """

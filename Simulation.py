@@ -3,9 +3,8 @@
 """
 @author: edwardahn
 
-Issues to fix:
-    - dt calculation
-    - Joystick input
+Class simulating running vehicle model defined in Model.py in an
+environment.
 """
 
 import yaml
