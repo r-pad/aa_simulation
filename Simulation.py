@@ -9,6 +9,7 @@ environment.
 
 import yaml
 
+import evdev
 import numpy as np
 import matplotlib.animation as anim
 import matplotlib.patches as patches
@@ -27,6 +28,16 @@ class CarSimulation(object):
     # Simulation modes
     CONSTANT_INPUT = 1          # Constant control input to system
     JOYSTICK_INPUT = 2          # Joystick control input to system
+
+    # Joystick defines
+    JOYSTICK_THROTTLE_KEY = 304
+    JOYSTICK_BRAKE_KEY = 307
+    JOYSTICK_STEER_KEY = 16
+    JOYSTICK_LEFT_VAL = -1
+    JOYSTICK_RIGHT_VAL = 1
+    JOYSTICK_STEER_AMT = np.deg2rad(15)
+    JOYSTICK_LEFT_THRESH = np.deg2rad(45)
+    JOYSTICK_RIGHT_THRESH = np.deg2rad(-45)
 
 
     def __init__(self, simulation_mode):
@@ -47,15 +58,17 @@ class CarSimulation(object):
         self.car = None
 
         # Initialize state and controls
-        if simulation_mode == CarSimulation.CONSTANT_INPUT:
-            state = np.zeros(6)
-            state[0] = 0
-            state[1] = 0
-            state[2] = 0
-            state[3] = 1
-            state[4] = 0.216854
-            state[5] = -0.772949
-            self.X = state
+        self.mode = simulation_mode
+        state = np.zeros(6)
+        state[0] = 0
+        state[1] = 0
+        state[2] = 0
+        state[3] = 1
+        state[4] = 0.216854
+        state[5] = -0.772949
+        self.X = state
+
+        if self.mode == CarSimulation.CONSTANT_INPUT:
             cmd_vel = 4.253134
             steer = np.deg2rad(15)
             control = np.zeros(2)
@@ -63,8 +76,15 @@ class CarSimulation(object):
             control[1] = steer
             self.U = control
             self.dt = 0.02
-        elif simulation_mode == CarSimulation.JOYSTICK_INPUT:
-            raise ValueError('Joystick mode not implemented yet')
+        elif self.mode == CarSimulation.JOYSTICK_INPUT:
+            self.device = evdev.InputDevice('/dev/input/event5')
+            cmd_vel = 0.5
+            steer = 0
+            control = np.zeros(2)
+            control[0] = cmd_vel
+            control[1] = steer
+            self.U = control
+            self.dt = 0.02
         else:
             raise ValueError('Invalid simulation mode')
 
@@ -76,6 +96,7 @@ class CarSimulation(object):
         x = [self.X[0]]
         y = [self.X[1]]
 
+        # Create visualization
         plt.ion()
         fig = plt.figure()
         ax = fig.add_subplot(111)
@@ -84,7 +105,33 @@ class CarSimulation(object):
         trajectory, = ax.plot(x, y, 'b-')
 
         while True:
+
+            # Get new control inputs if available
+            if self.mode == CarSimulation.JOYSTICK_INPUT:
+                events = self.device.read()
+                try:
+                    for event in events:
+                        if event.code == CarSimulation.JOYSTICK_THROTTLE_KEY:
+                            if event.value != 1:
+                                self.U[0] += 0.5
+                        elif event.code == CarSimulation.JOYSTICK_BRAKE_KEY:
+                            if event.value != 1 and self.U[0] > 0:
+                                self.U[0] -= 0.5
+                        elif event.code == CarSimulation.JOYSTICK_STEER_KEY:
+                            if event.value == -1 and \
+                                    self.U[1] < CarSimulation.JOYSTICK_LEFT_THRESH:
+                                self.U[1] += CarSimulation.JOYSTICK_STEER_AMT
+                            elif event.value == 1 and \
+                                    self.U[1] > CarSimulation.JOYSTICK_RIGHT_THRESH:
+                                self.U[1] -= CarSimulation.JOYSTICK_STEER_AMT
+                        break
+                except IOError:
+                    pass
+
+            # Get new state from state and control inputs
             self.X = self.model.state_transition(self.X, self.U, self.dt)
+
+            # Draw new state onto existing trajectory
             x.append(self.X[0])
             y.append(self.X[1])
             trajectory.set_xdata(x)
@@ -174,6 +221,7 @@ class CarSimulation(object):
 
 
 if __name__ == '__main__':
-    simulation = CarSimulation(CarSimulation.CONSTANT_INPUT)
+    #simulation = CarSimulation(CarSimulation.CONSTANT_INPUT)
+    simulation = CarSimulation(CarSimulation.JOYSTICK_INPUT)
     simulation.run()
 
