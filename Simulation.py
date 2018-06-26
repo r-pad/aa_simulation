@@ -7,6 +7,7 @@ Class simulating running vehicle model defined in Model.py in an
 environment.
 """
 
+import argparse
 import yaml
 
 import evdev
@@ -40,7 +41,7 @@ class CarSimulation(object):
     JOYSTICK_RIGHT_THRESH = np.deg2rad(-45)
 
 
-    def __init__(self, simulation_mode):
+    def __init__(self, simulation_mode, show_visuals):
         """
         Initialize simulation parameters.
         """
@@ -56,6 +57,7 @@ class CarSimulation(object):
 
         # Graphics specific variables
         self.car = None
+        self.show_visuals = show_visuals
 
         # Initialize state and controls
         self.mode = simulation_mode
@@ -97,12 +99,13 @@ class CarSimulation(object):
         y = [self.X[1]]
 
         # Create visualization
-        plt.ion()
-        fig = plt.figure()
-        ax = fig.add_subplot(111)
-        ax.set_xlim(-3, 3)
-        ax.set_ylim(-3, 3)
-        trajectory, = ax.plot(x, y, 'b-')
+        if self.show_visuals:
+            plt.ion()
+            fig = plt.figure()
+            ax = fig.add_subplot(111)
+            ax.set_xlim(-3, 3)
+            ax.set_ylim(-3, 3)
+            trajectory, = ax.plot(x, y, 'b-')
 
         while True:
 
@@ -130,14 +133,15 @@ class CarSimulation(object):
 
             # Get new state from state and control inputs
             self.X = self.model.state_transition(self.X, self.U, self.dt)
-
-            # Draw new state onto existing trajectory
             x.append(self.X[0])
             y.append(self.X[1])
-            trajectory.set_xdata(x)
-            trajectory.set_ydata(y)
-            self._draw_car(ax, self.X[0], self.X[1], self.X[2])
-            fig.canvas.draw()
+
+            # Draw new state onto existing trajectory
+            if self.show_visuals:
+                trajectory.set_xdata(x)
+                trajectory.set_ydata(y)
+                self._draw_car(ax, self.X[0], self.X[1], self.X[2])
+                fig.canvas.draw()
 
 
     def _draw_car(self, ax, x, y, yaw):
@@ -220,8 +224,42 @@ class CarSimulation(object):
         ax.add_patch(self.wheel_rl)
 
 
-if __name__ == '__main__':
-    #simulation = CarSimulation(CarSimulation.CONSTANT_INPUT)
-    simulation = CarSimulation(CarSimulation.JOYSTICK_INPUT)
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+
+    # Show visualizations
+    parser_group = parser.add_mutually_exclusive_group(required=False)
+    parser_group.add_argument('--show',
+            dest='show_visuals', action='store_true',
+            help='Whether to visually show the simulation.')
+    parser_group.add_argument('--no-show',
+            dest='show_visuals', action='store_false',
+            help='Whether to visually show the simulation.')
+    parser.set_defaults(show_visuals=True)
+
+    # Simulation mode
+    parser_group = parser.add_mutually_exclusive_group(required=False)
+    parser_group.add_argument('--constant',
+            dest='mode', action='store_const',
+            const=CarSimulation.CONSTANT_INPUT,
+            help='What type of simulation mode to run.')
+    parser_group.add_argument('--joystick',
+            dest='mode', action='store_const',
+            const=CarSimulation.JOYSTICK_INPUT,
+            help='What type of simulation mode to run.')
+    parser.set_defaults(mode=CarSimulation.CONSTANT_INPUT)
+
+    return parser.parse_args()
+
+
+def main():
+    args = parse_arguments()
+    show_visuals = args.show_visuals
+    simulation_mode = args.mode
+    simulation = CarSimulation(simulation_mode, show_visuals)
     simulation.run()
+
+
+if __name__ == '__main__':
+    main()
 
