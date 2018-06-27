@@ -8,6 +8,7 @@ environment.
 """
 
 import argparse
+import csv
 import yaml
 
 import evdev
@@ -90,6 +91,14 @@ class CarSimulation(object):
         else:
             raise ValueError('Invalid simulation mode')
 
+        # Get obstacles from CSV file
+        #   Convention: (x, y, r) for each obstacle, which is a circle
+        with open('obstacles.csv', 'rb') as csvfile:
+            reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+            values = list(reader)
+            obstacle_list = [[float(x) for x in row] for row in values]
+            self.obstacles = np.array(obstacle_list)
+
 
     def run(self):
         """
@@ -102,10 +111,18 @@ class CarSimulation(object):
         if self.show_visuals:
             plt.ion()
             fig = plt.figure()
+            plt.axis('scaled')
             ax = fig.add_subplot(111)
-            ax.set_xlim(-3, 3)
-            ax.set_ylim(-3, 3)
+            ax.set_xlim(-4, 4)
+            ax.set_ylim(-4, 4)
             trajectory, = ax.plot(x, y, 'b-')
+            for i in xrange(len(self.obstacles)):
+                obstacle = self.obstacles[i]
+                x_ = obstacle[0]
+                y_ = obstacle[1]
+                r_ = obstacle[2]
+                circle = plt.Circle((x_, y_), r_, fill=False)
+                ax.add_artist(circle)
 
         while True:
 
@@ -132,9 +149,18 @@ class CarSimulation(object):
                     pass
 
             # Get new state from state and control inputs
-            self.X = self.model.state_transition(self.X, self.U, self.dt)
-            x.append(self.X[0])
-            y.append(self.X[1])
+            new_state = self.model.state_transition(self.X, self.U, self.dt)
+
+            # Check collision against obstacle
+            collision = self._check_collision(new_state)
+
+            # Append new state to trajectory
+            if not collision:
+                self.X = new_state
+                x.append(self.X[0])
+                y.append(self.X[1])
+            else:
+                continue
 
             # Draw new state onto existing trajectory
             if self.show_visuals:
@@ -142,6 +168,23 @@ class CarSimulation(object):
                 trajectory.set_ydata(y)
                 self._draw_car(ax, self.X[0], self.X[1], self.X[2])
                 fig.canvas.draw()
+
+
+    def _check_collision(self, state):
+        """
+        Check if state collides with any of the obstacles.
+        """
+        x = state[0]
+        y = state[1]
+        point = state[0:2]
+        for i in xrange(len(self.obstacles)):
+            obstacle = self.obstacles[i]
+            center = obstacle[0:2]
+            radius = obstacle[2]
+            if np.linalg.norm(center-point) < radius:
+                return True
+
+        return False
 
 
     def _draw_car(self, ax, x, y, yaw):

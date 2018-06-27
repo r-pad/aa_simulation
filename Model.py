@@ -45,8 +45,11 @@ class VehicleModel(object):
         Update state after some timestep.
         """
         t = np.array([0, dt])
-        X_new = odeint(self._dynamics, X, t, args=(U,), mxstep=5000000)
-        return X_new[1]
+        #X_new = odeint(self._dynamics, X, t, args=(U,), mxstep=5000000)
+        #return X_new[1]
+        X_dot = self._dynamics(X, t, U)
+        X_new = X_dot * dt + X
+        return X_new
 
 
     def _dynamics(self, X, t, U):
