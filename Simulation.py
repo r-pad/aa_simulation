@@ -37,6 +37,7 @@ class CarSimulation(object):
     JOYSTICK_STEER_KEY = 16
     JOYSTICK_LEFT_VAL = -1
     JOYSTICK_RIGHT_VAL = 1
+    JOYSTICK_SPEED_AMT = 0.5
     JOYSTICK_STEER_AMT = np.deg2rad(15)
     JOYSTICK_LEFT_THRESH = np.deg2rad(45)
     JOYSTICK_RIGHT_THRESH = np.deg2rad(-45)
@@ -133,10 +134,10 @@ class CarSimulation(object):
                     for event in events:
                         if event.code == CarSimulation.JOYSTICK_THROTTLE_KEY:
                             if event.value != 1:
-                                self.U[0] += 0.5
+                                self.U[0] += CarSimulation.JOYSTICK_SPEED_AMT
                         elif event.code == CarSimulation.JOYSTICK_BRAKE_KEY:
                             if event.value != 1 and self.U[0] > 0:
-                                self.U[0] -= 0.5
+                                self.U[0] -= CarSimulation.JOYSTICK_SPEED_AMT
                         elif event.code == CarSimulation.JOYSTICK_STEER_KEY:
                             if event.value == -1 and \
                                     self.U[1] < CarSimulation.JOYSTICK_LEFT_THRESH:
