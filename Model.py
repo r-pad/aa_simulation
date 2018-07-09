@@ -46,12 +46,10 @@ class VehicleModel(object):
         """
         t = np.linspace(0, dt, 2)
         X_new = odeint(self._dynamics, X, t, args=(U,), mxstep=5000000)
-        return X_new[1]
-        '''
-        X_dot = self._dynamics(X, t, U)
-        X_new = X_dot * dt + X
-        return X_new
-        '''
+        return X_new[-1]
+        #X_dot = self._dynamics(X, t, U)
+        #X_new = X_dot * dt + X
+        #return X_new
 
 
     def _dynamics(self, X, t, U):

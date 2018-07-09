@@ -9,11 +9,11 @@ environment.
 
 import argparse
 import csv
+import functools as ft
+import time
 import yaml
 
-import evdev
 import numpy as np
-import matplotlib.animation as anim
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import matplotlib.transforms as tf
@@ -29,18 +29,13 @@ class CarSimulation(object):
 
     # Simulation modes
     CONSTANT_INPUT = 1          # Constant control input to system
-    JOYSTICK_INPUT = 2          # Joystick control input to system
+    MANUAL_INPUT = 2            # Manual control input to system
 
-    # Joystick defines
-    JOYSTICK_THROTTLE_KEY = 304
-    JOYSTICK_BRAKE_KEY = 307
-    JOYSTICK_STEER_KEY = 16
-    JOYSTICK_LEFT_VAL = -1
-    JOYSTICK_RIGHT_VAL = 1
-    JOYSTICK_SPEED_AMT = 0.5
-    JOYSTICK_STEER_AMT = np.deg2rad(15)
-    JOYSTICK_LEFT_THRESH = np.deg2rad(45)
-    JOYSTICK_RIGHT_THRESH = np.deg2rad(-45)
+    # Manual defines
+    MANUAL_SPEED_AMT = 0.5
+    MANUAL_STEER_AMT = np.deg2rad(5)
+    MANUAL_LEFT_THRESH = np.deg2rad(45)
+    MANUAL_RIGHT_THRESH = np.deg2rad(-45)
 
 
     def __init__(self, simulation_mode, show_visuals):
@@ -48,7 +43,7 @@ class CarSimulation(object):
         Initialize simulation parameters.
         """
         # Instantiate vehicle model and interpret parameters
-        stream = file('params.yaml', 'r')
+        stream = open('params.yaml', 'r')
         params = yaml.load(stream)
         self.model = VehicleModel(params)
         self.L_f = params['L_f']
@@ -56,23 +51,14 @@ class CarSimulation(object):
         self.tw = params['tw']
         self.wheel_dia = params['wheel_dia']
         self.wheel_w = params['wheel_w']
+        self.mode = simulation_mode
 
         # Graphics specific variables
         self.car = None
         self.show_visuals = show_visuals
 
-        # Initialize state and controls
-        self.mode = simulation_mode
-        state = np.zeros(6)
-        state[0] = 0
-        state[1] = 0
-        state[2] = 0
-        state[3] = 1
-        state[4] = 0.216854
-        state[5] = -0.772949
-        self.X = state
-
         if self.mode == CarSimulation.CONSTANT_INPUT:
+            self.X = np.array([0,0,0,1,0.216854,-0.772949])
             cmd_vel = 4.253134
             steer = np.deg2rad(15)
             control = np.zeros(2)
@@ -80,9 +66,10 @@ class CarSimulation(object):
             control[1] = steer
             self.U = control
             self.dt = 0.02
-        elif self.mode == CarSimulation.JOYSTICK_INPUT:
-            self.device = evdev.InputDevice('/dev/input/event5')
-            cmd_vel = 0.5
+        elif self.mode == CarSimulation.MANUAL_INPUT:
+            self.timestep = 0
+            self.X = np.zeros(6)
+            cmd_vel = 3.75
             steer = 0
             control = np.zeros(2)
             control[0] = cmd_vel
@@ -94,7 +81,7 @@ class CarSimulation(object):
 
         # Get obstacles from CSV file
         #   Convention: (x, y, r) for each obstacle, which is a circle
-        with open('obstacles.csv', 'rb') as csvfile:
+        with open('obstacles.csv', 'rt') as csvfile:
             reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
             values = list(reader)
             obstacle_list = [[float(x) for x in row] for row in values]
@@ -112,12 +99,12 @@ class CarSimulation(object):
         if self.show_visuals:
             plt.ion()
             fig = plt.figure()
-            plt.axis('scaled')
             ax = fig.add_subplot(111)
-            ax.set_xlim(-4, 4)
-            ax.set_ylim(-4, 4)
+            ax.set_aspect('equal')
+            ax.set_xlim(-10, 10)
+            ax.set_ylim(-10, 10)
             trajectory, = ax.plot(x, y, 'b-')
-            for i in xrange(len(self.obstacles)):
+            for i in range(len(self.obstacles)):
                 obstacle = self.obstacles[i]
                 x_ = obstacle[0]
                 y_ = obstacle[1]
@@ -125,29 +112,24 @@ class CarSimulation(object):
                 circle = plt.Circle((x_, y_), r_, fill=False)
                 ax.add_artist(circle)
 
+        start_time = time.time()
+
         while True:
 
-            # Get new control inputs if available
-            if self.mode == CarSimulation.JOYSTICK_INPUT:
-                events = self.device.read()
-                try:
-                    for event in events:
-                        if event.code == CarSimulation.JOYSTICK_THROTTLE_KEY:
-                            if event.value != 1:
-                                self.U[0] += CarSimulation.JOYSTICK_SPEED_AMT
-                        elif event.code == CarSimulation.JOYSTICK_BRAKE_KEY:
-                            if event.value != 1 and self.U[0] > 0:
-                                self.U[0] -= CarSimulation.JOYSTICK_SPEED_AMT
-                        elif event.code == CarSimulation.JOYSTICK_STEER_KEY:
-                            if event.value == -1 and \
-                                    self.U[1] < CarSimulation.JOYSTICK_LEFT_THRESH:
-                                self.U[1] += CarSimulation.JOYSTICK_STEER_AMT
-                            elif event.value == 1 and \
-                                    self.U[1] > CarSimulation.JOYSTICK_RIGHT_THRESH:
-                                self.U[1] -= CarSimulation.JOYSTICK_STEER_AMT
-                        break
-                except IOError:
-                    pass
+            # Input manual control inputs
+            if self.mode == CarSimulation.MANUAL_INPUT:
+                self.timestep += 1
+                if self.timestep == 20:
+                    print(time.time() - start_time)
+                    self.U[1] += CarSimulation.MANUAL_STEER_AMT
+                elif self.timestep == 60:
+                    print(time.time() - start_time)
+                    self.U[1] -= CarSimulation.MANUAL_STEER_AMT
+                elif self.timestep == 120:
+                    print(time.time() - start_time)
+                    self.U[1] += 2*CarSimulation.MANUAL_STEER_AMT
+                elif self.timestep == 160:
+                    print(time.time() - start_time)
 
             # Get new state from state and control inputs
             new_state = self.model.state_transition(self.X, self.U, self.dt)
@@ -169,6 +151,7 @@ class CarSimulation(object):
                 trajectory.set_ydata(y)
                 self._draw_car(ax, self.X[0], self.X[1], self.X[2])
                 fig.canvas.draw()
+                plt.pause(0.001)
 
 
     def _check_collision(self, state):
@@ -178,7 +161,7 @@ class CarSimulation(object):
         x = state[0]
         y = state[1]
         point = state[0:2]
-        for i in xrange(len(self.obstacles)):
+        for i in range(len(self.obstacles)):
             obstacle = self.obstacles[i]
             center = obstacle[0:2]
             radius = obstacle[2]
@@ -243,9 +226,9 @@ class CarSimulation(object):
 
         # Apply coordinate transform to chassis and wheels
         pos_body = np.dot(pos_tf, self.car_coords)
-        pos_wheel_fr = reduce(np.dot, [pos_tf, self.wheel_fr_tf,
+        pos_wheel_fr = ft.reduce(np.dot, [pos_tf, self.wheel_fr_tf,
             pos_steer, self.wheel_coords])
-        pos_wheel_fl = reduce(np.dot, [pos_tf, self.wheel_fl_tf,
+        pos_wheel_fl = ft.reduce(np.dot, [pos_tf, self.wheel_fl_tf,
             pos_steer, self.wheel_coords])
         pos_wheel_rr = np.dot(pos_tf, self.wheel_rr_tf)
         pos_wheel_rl = np.dot(pos_tf, self.wheel_rl_tf)
@@ -287,9 +270,9 @@ def parse_arguments():
             dest='mode', action='store_const',
             const=CarSimulation.CONSTANT_INPUT,
             help='What type of simulation mode to run.')
-    parser_group.add_argument('--joystick',
+    parser_group.add_argument('--manual',
             dest='mode', action='store_const',
-            const=CarSimulation.JOYSTICK_INPUT,
+            const=CarSimulation.MANUAL_INPUT,
             help='What type of simulation mode to run.')
     parser.set_defaults(mode=CarSimulation.CONSTANT_INPUT)
 
