@@ -44,12 +44,14 @@ class VehicleModel(object):
         """
         Update state after some timestep.
         """
-        t = np.array([0, dt])
-        #X_new = odeint(self._dynamics, X, t, args=(U,), mxstep=5000000)
-        #return X_new[1]
+        t = np.linspace(0, dt, 2)
+        X_new = odeint(self._dynamics, X, t, args=(U,), mxstep=5000000)
+        return X_new[1]
+        '''
         X_dot = self._dynamics(X, t, U)
         X_new = X_dot * dt + X
         return X_new
+        '''
 
 
     def _dynamics(self, X, t, U):
@@ -82,10 +84,10 @@ class VehicleModel(object):
         ma_x = F_xr - F_yf*np.sin(delta)
         ma_y = F_yf*np.cos(delta) + F_yr
 
-        # Acceleration with damping
-        yaw_rate_dot = T_z/self.I_z - 0.02*yaw_rate
-        v_x_dot = ma_x/self.m + yaw_rate*v_y - 0.025*v_x
-        v_y_dot = ma_y/self.m - yaw_rate*v_x - 0.025*v_y
+        # Acceleration
+        yaw_rate_dot = T_z/self.I_z
+        v_x_dot = ma_x/self.m + yaw_rate*v_y
+        v_y_dot = ma_y/self.m - yaw_rate*v_x
 
         # Translate to inertial frame
         v = np.sqrt(v_x**2 + v_y**2)
