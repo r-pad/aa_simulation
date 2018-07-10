@@ -24,6 +24,8 @@ class VehicleEnv(Env):
     obstacles specified by the user.
     """
 
+    _MIN_VELOCITY = 0.0
+    _MAX_VELOCITY = 4.0
     _MAX_STEER_ANGLE = np.deg2rad(45)
 
 
@@ -47,7 +49,7 @@ class VehicleEnv(Env):
             obstacle_list = [[float(x) for x in row] for row in values]
             self._obstacles = np.array(obstacle_list)
 
-        # Goal state
+        # Goal location
         self._goal = np.array([10, 0])
         self._goal_epsilon = 1
 
@@ -59,8 +61,10 @@ class VehicleEnv(Env):
 
     @property
     def action_space(self):
-        low = np.array([-np.inf, -VehicleEnv._MAX_STEER_ANGLE])
-        high = np.array([np.inf, VehicleEnv._MAX_STEER_ANGLE])
+        low = np.array([VehicleEnv._MIN_VELOCITY,
+            -VehicleEnv._MAX_STEER_ANGLE])
+        high = np.array([VehicleEnv._MAX_VELOCITY,
+            VehicleEnv._MAX_STEER_ANGLE])
         return Box(low=low, high=high)
 
 
@@ -87,6 +91,7 @@ class VehicleEnv(Env):
             reward = -10
             done = True
         else:
+            self._state = nextstate
             if self._reached_goal(nextstate):
                 reward = 0
                 done = True
