@@ -18,7 +18,6 @@ import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 import matplotlib.transforms as tf
 
-import Model
 from Model import VehicleModel
 
 
