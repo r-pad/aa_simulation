@@ -38,6 +38,7 @@ class VehicleEnv(Env):
         stream = open('car_simulation/params.yaml', 'r')
         self._params = yaml.load(stream)
         self._model = VehicleModel(self._params)
+        self._action = None
 
         # Time between each simulation iteration
         self._dt = 0.02
@@ -86,6 +87,7 @@ class VehicleEnv(Env):
         Move one iteration forward in simulation.
         """
         # Get next state from dynamics equations
+        self._action = action
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)
 
@@ -115,7 +117,7 @@ class VehicleEnv(Env):
         print('current state:', self._state)
         if self._renderer == None:
             self._renderer = _Renderer(self._params, self._obstacles)
-        self._renderer.update(self._state)
+        self._renderer.update(self._state, self._action)
 
 
     def _check_collision(self, state):
