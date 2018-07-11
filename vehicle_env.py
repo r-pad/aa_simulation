@@ -16,6 +16,7 @@ from rllab.spaces import Box
 from rllab.envs.base import Step
 
 from car_simulation.model import VehicleModel
+from car_simulation.renderer import _Renderer
 
 
 class VehicleEnv(Env):
@@ -52,6 +53,9 @@ class VehicleEnv(Env):
         # Goal location
         self._goal = np.array([10, 0])
         self._goal_epsilon = 1
+
+        # Instantiates object handling simulation renderings
+        self._renderer = None
 
 
     @property
@@ -109,6 +113,9 @@ class VehicleEnv(Env):
         Render simulation environment.
         """
         print('current state:', self._state)
+        if self._renderer == None:
+            self._renderer = _Renderer(self._params, self._obstacles)
+        self._renderer.update(self._state)
 
 
     def _check_collision(self, state):
