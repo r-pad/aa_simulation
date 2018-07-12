@@ -28,7 +28,7 @@ class VehicleEnv(Env):
     _MIN_VELOCITY = 0.0
     _MAX_VELOCITY = 4.0
     _MAX_STEER_ANGLE = np.deg2rad(45)
-    _HORIZON_LENGTH = 100
+    _HORIZON_LENGTH = 200
 
 
     def __init__(self):
@@ -86,6 +86,7 @@ class VehicleEnv(Env):
         """
         Reset environment back to original state.
         """
+        self._action = None
         self._state = np.zeros(6)
         observation = np.copy(self._state)
 
@@ -108,7 +109,7 @@ class VehicleEnv(Env):
         # Check collision and assign reward to transition
         collision = self._check_collision(nextstate)
         if collision:
-            reward = -10
+            reward = -20
             done = True
         else:
             self._state = nextstate
@@ -116,7 +117,9 @@ class VehicleEnv(Env):
                 reward = 0
                 done = True
             else:
-                reward = -1
+                location = nextstate[0:2]
+                goal = self._goal[0:2]
+                reward = -np.linalg.norm(location-goal)
                 done = False
 
         next_observation = np.copy(self._state)
