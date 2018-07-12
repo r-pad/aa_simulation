@@ -19,7 +19,7 @@ class _Renderer(object):
     Renders the RC car and obstacles contained in the simulation.
     """
 
-    def __init__(self, params, obstacles):
+    def __init__(self, params, obstacles, goal):
         """
         Initialize simulation.
         """
@@ -34,20 +34,22 @@ class _Renderer(object):
         # Create visualization
         plt.ion()
         self._fig = plt.figure()
-        window_size = 10
         self._ax = self._fig.add_subplot(111)
         self._ax.set_aspect('equal')
-        self._ax.set_xlim(-window_size, window_size)
-        self._ax.set_ylim(-window_size, window_size)
+        self._ax.set_xlim(-2, 10)
+        self._ax.set_ylim(-5, 5)
         self._trajectory, = self._ax.plot(self._x, self._y, 'b-')
-        for i in range(len(self._obstacles)):
-            obstacle = self._obstacles[i]
-            obstacle_x = obstacle[0]
-            obstacle_y = obstacle[1]
-            obstacle_r = obstacle[2]
-            circle = plt.Circle((obstacle_x, obstacle_y), obstacle_r,
-                    fill=False)
-            self._ax.add_artist(circle)
+        if len(self._obstacles) != 0:
+            for i in range(len(self._obstacles)):
+                obstacle = self._obstacles[i]
+                obstacle_x = obstacle[0]
+                obstacle_y = obstacle[1]
+                obstacle_r = obstacle[2]
+                circle = plt.Circle((obstacle_x, obstacle_y),
+                        obstacle_r, fill=False)
+                self._ax.add_artist(circle)
+        circle = plt.Circle((goal[0], goal[1]), goal[2])
+        self._ax.add_artist(circle)
 
         # Indicates whether display has been created
         self._car = None
@@ -71,6 +73,16 @@ class _Renderer(object):
         self._draw_car(pos_x, pos_y, pos_yaw, steer)
         self._fig.canvas.draw()
         plt.pause(0.001)
+
+
+    def reset(self):
+        """
+        Reset visualization, removing any visible trajectories.
+        """
+        self._x = []
+        self._y = []
+        self._trajectory.set_xdata(self._x)
+        self._trajectory.set_ydata(self._y)
 
 
     def _draw_car(self, x, y, yaw, steer):
