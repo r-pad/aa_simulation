@@ -28,6 +28,7 @@ class VehicleEnv(Env):
     _MIN_VELOCITY = 0.0
     _MAX_VELOCITY = 4.0
     _MAX_STEER_ANGLE = np.deg2rad(45)
+    _HORIZON_LENGTH = 100
 
 
     def __init__(self):
@@ -52,8 +53,11 @@ class VehicleEnv(Env):
             self._obstacles = np.array(obstacle_list)
 
         # Goal location
-        self._goal = np.array([10, 0])
-        self._goal_epsilon = 1
+        #   Convention: (x, y, r)
+        with open('car_simulation/goal.csv', 'rt') as csvfile:
+            reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
+            values = list(reader)[0]
+            self._goal = [float(x) for x in values]
 
         # Instantiates object handling simulation renderings
         self._renderer = None
@@ -75,7 +79,7 @@ class VehicleEnv(Env):
 
     @property
     def horizon(self):
-        return 100
+        return VehicleEnv._HORIZON_LENGTH
 
 
     def reset(self):
@@ -84,6 +88,11 @@ class VehicleEnv(Env):
         """
         self._state = np.zeros(6)
         observation = np.copy(self._state)
+
+        # Reset renderer if available
+        if self._renderer is not None:
+            self._renderer.reset()
+
         return observation
 
 
@@ -121,7 +130,8 @@ class VehicleEnv(Env):
         """
         print('current state:', self._state)
         if self._renderer == None:
-            self._renderer = _Renderer(self._params, self._obstacles)
+            self._renderer = _Renderer(self._params, self._obstacles,
+                    self._goal)
         self._renderer.update(self._state, self._action)
 
 
@@ -130,12 +140,17 @@ class VehicleEnv(Env):
         Check if state collides with any of the obstacles.
         """
         point = state[0:2]
+
+        if len(self._obstacles) == 0:
+            return False
+
         for i in range(len(self._obstacles)):
             obstacle = self._obstacles[i]
             center = obstacle[0:2]
             radius = obstacle[2]
             if np.linalg.norm(center-point) < radius:
                 return True
+
         return False
 
 
@@ -144,7 +159,8 @@ class VehicleEnv(Env):
         Check if state is at goal position, within an epsilon.
         """
         point = state[0:2]
-        if np.linalg.norm(self._goal-point) < self._goal_epsilon:
+        goal = self._goal[0:2]
+        if np.linalg.norm(goal-point) < self._goal[2]:
             return True
         return False
 
