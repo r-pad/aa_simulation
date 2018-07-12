@@ -73,6 +73,11 @@ class VehicleEnv(Env):
         return Box(low=low, high=high)
 
 
+    @property
+    def horizon(self):
+        return 100
+
+
     def reset(self):
         """
         Reset environment back to original state.
