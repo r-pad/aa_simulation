@@ -10,7 +10,7 @@ at https://github.com/jsford/FFAST.
 """
 
 import numpy as np
-from scipy.integrate import odeint
+from scipy.integrate import solve_ivp
 
 
 class VehicleModel(object):
@@ -44,12 +44,9 @@ class VehicleModel(object):
         """
         Update state after some timestep.
         """
-        t = np.linspace(0, dt, 2)
-        X_new = odeint(self._dynamics, X, t, args=(U,), mxstep=5000000)
-        return X_new[-1]
-        #X_dot = self._dynamics(X, t, U)
-        #X_new = X_dot * dt + X
-        #return X_new
+        t = np.array([0, dt])
+        X_new = solve_ivp(lambda t, X: self._dynamics(X, t, U), t, X)
+        return X_new.y[:,-1]
 
 
     def _dynamics(self, X, t, U):

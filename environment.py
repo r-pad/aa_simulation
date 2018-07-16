@@ -131,7 +131,6 @@ class VehicleEnv(Env):
         """
         Render simulation environment.
         """
-        print('current state:', self._state)
         if self._renderer == None:
             self._renderer = _Renderer(self._params, self._obstacles,
                     self._goal)
