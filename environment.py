@@ -26,7 +26,7 @@ class VehicleEnv(Env):
     """
 
     _MIN_VELOCITY = 0.0
-    _MAX_VELOCITY = 4.0
+    _MAX_VELOCITY = 1.3
     _MAX_STEER_ANGLE = np.deg2rad(45)
     _HORIZON_LENGTH = 200
 
@@ -119,8 +119,15 @@ class VehicleEnv(Env):
             else:
                 location = nextstate[0:2]
                 goal = self._goal[0:2]
-                reward = -np.linalg.norm(location-goal)
                 done = False
+
+                # Direct path to goal
+                #reward = -np.linalg.norm(location-goal)
+
+                # Straight path with nonzero horizontal velocity
+                reward = -np.abs(location[1])
+                x_dot = nextstate[3]
+                reward += 2*x_dot*(2-x_dot)-2
 
         next_observation = np.copy(self._state)
         return Step(observation=next_observation, reward=reward,
