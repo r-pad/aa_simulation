@@ -36,8 +36,17 @@ class _Renderer(object):
         self._fig = plt.figure()
         self._ax = self._fig.add_subplot(111)
         self._ax.set_aspect('equal')
-        self._ax.set_xlim(-2, 10)
-        self._ax.set_ylim(-5, 5)
+        self._ax.set_xlim(-1, 4)
+        self._ax.set_ylim(-2, 2)
+
+        # Show ideal trajectory
+        line = plt.Line2D([0, goal[0]], [0, goal[1]], color='c', ls=':')
+        self._ax.add_line(line)
+        arc = patches.Arc((goal[0]/2, 0), goal[0], goal[0], 0, 180, 360,
+                color='c', ls=':')
+        self._ax.add_patch(arc)
+
+        # Draw remaining simulation
         self._trajectory, = self._ax.plot(self._x, self._y, 'b-')
         if len(self._obstacles) != 0:
             for i in range(len(self._obstacles)):
@@ -46,9 +55,9 @@ class _Renderer(object):
                 obstacle_y = obstacle[1]
                 obstacle_r = obstacle[2]
                 circle = plt.Circle((obstacle_x, obstacle_y),
-                        obstacle_r, fill=False)
+                        obstacle_r, color='0.5')
                 self._ax.add_artist(circle)
-        circle = plt.Circle((goal[0], goal[1]), goal[2])
+        circle = plt.Circle((goal[0], goal[1]), goal[2], fill=False)
         self._ax.add_artist(circle)
 
         # Indicates whether display has been created
