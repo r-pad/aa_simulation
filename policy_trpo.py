@@ -33,10 +33,10 @@ def run_task(*_):
         baseline=baseline,
         batch_size=1000,
         max_path_length=env.horizon,
-        n_itr=100,
+        n_itr=1000,
         discount=0.99,
         step_size=0.01,
-        plot=True,
+        plot=False,
     )
     algo.train()
 
@@ -45,6 +45,6 @@ run_experiment_lite(
     run_task,
     n_parallel=1,
     snapshot_mode="last",   # Keep snapshot params for last iteration
-    seed=1,
-    plot=True,
+    seed=9,
+    plot=False,
 )
