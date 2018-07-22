@@ -45,7 +45,8 @@ class VehicleModel(object):
         Update state after some timestep.
         """
         t = np.array([0, dt])
-        X_new = solve_ivp(lambda t, X: self._dynamics(X, t, U), t, X)
+        X_new = solve_ivp(lambda t, X: self._dynamics(X, t, U), t, X,
+                atol=1e-5)
         return X_new.y[:,-1]
 
 
