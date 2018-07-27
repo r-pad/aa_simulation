@@ -80,10 +80,10 @@ class VehicleModel(object):
         ma_x = F_xr - F_yf*np.sin(delta)
         ma_y = F_yf*np.cos(delta) + F_yr
 
-        # Acceleration
-        yaw_rate_dot = T_z/self.I_z
-        v_x_dot = ma_x/self.m + yaw_rate*v_y
-        v_y_dot = ma_y/self.m - yaw_rate*v_x
+        # Acceleration with damping
+        yaw_rate_dot = T_z/self.I_z - 0.02*yaw_rate
+        v_x_dot = ma_x/self.m + yaw_rate*v_y - 0.025*v_x
+        v_y_dot = ma_y/self.m - yaw_rate*v_x - 0.025*v_y
 
         # Translate to inertial frame
         v = np.sqrt(v_x**2 + v_y**2)
