@@ -6,7 +6,6 @@
 Simulation environment using vehicle model defined in Model.py.
 """
 
-import csv
 import yaml
 
 import numpy as np
