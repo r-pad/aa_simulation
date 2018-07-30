@@ -19,7 +19,7 @@ class _Renderer(object):
     Renders the RC car and obstacles contained in the simulation.
     """
 
-    def __init__(self, params, obstacles, goal):
+    def __init__(self, params, obstacles, goal, env_type):
         """
         Initialize simulation.
         """
@@ -36,15 +36,22 @@ class _Renderer(object):
         self._fig = plt.figure()
         self._ax = self._fig.add_subplot(111)
         self._ax.set_aspect('equal')
-        self._ax.set_xlim(-1, 4)
-        self._ax.set_ylim(-2, 2)
+        if env_type == 'EmptyEnv':
+            self._ax.set_xlim(-1, 5)
+            self._ax.set_ylim(-3, 3)
+        else:
+            self._ax.set_xlim(-1, 4)
+            self._ax.set_ylim(-2, 2)
 
         # Show ideal trajectory
-        line = plt.Line2D([0, goal[0]], [0, goal[1]], color='c', ls=':')
-        self._ax.add_line(line)
-        arc = patches.Arc((goal[0]/2, 0), goal[0], goal[0], 0, 180, 360,
-                color='c', ls=':')
-        self._ax.add_patch(arc)
+        if env_type == 'StraightEnv':
+            line = plt.Line2D([0, goal[0]], [0, goal[1]],
+                    color='c', ls=':')
+            self._ax.add_line(line)
+        elif env_type == 'ArcEnv':
+            arc = patches.Arc((goal[0]/2, 0), goal[0], goal[0],
+                    0, 180, 360, color='c', ls=':')
+            self._ax.add_patch(arc)
 
         # Draw remaining simulation
         self._trajectory, = self._ax.plot(self._x, self._y, 'b-')
@@ -57,8 +64,9 @@ class _Renderer(object):
                 circle = plt.Circle((obstacle_x, obstacle_y),
                         obstacle_r, color='0.5')
                 self._ax.add_artist(circle)
-        circle = plt.Circle((goal[0], goal[1]), goal[2], fill=False)
-        self._ax.add_artist(circle)
+        if goal != None:
+            circle = plt.Circle((goal[0], goal[1]), goal[2], fill=False)
+            self._ax.add_artist(circle)
 
         # Indicates whether display has been created
         self._car = None
@@ -149,6 +157,7 @@ class _Renderer(object):
         self._ax.add_patch(self._wheel_fl)
         self._ax.add_patch(self._wheel_rr)
         self._ax.add_patch(self._wheel_rl)
+
 
     def _initialize_transforms(self):
         """
