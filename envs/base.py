@@ -38,6 +38,8 @@ class VehicleEnv(Env):
         self._params = yaml.load(stream)
         self._model = VehicleModel(self._params)
         self._action = None
+        self._obstacles = []
+        self._goal = None
 
         # Time between each simulation iteration
         self._dt = 0.02
@@ -93,7 +95,7 @@ class VehicleEnv(Env):
         """
         if self._renderer == None:
             self._renderer = _Renderer(self._params, self._obstacles,
-                    self._goal)
+                    self._goal, self.__class__.__name__)
         self._renderer.update(self._state, self._action)
 
 
