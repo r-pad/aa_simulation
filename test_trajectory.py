@@ -10,6 +10,7 @@ import numpy as np
 
 from rllab.envs.base import Env
 from rllab.envs.normalized_env import normalize
+from rllab.misc.console import query_yes_no
 from rllab.misc.resolve import load_class
 
 
@@ -21,21 +22,27 @@ def main():
 
     t = 0
     max_t = 50
-    while t < max_t:
 
-        # Hardcoded trajectory
-        if t == 5:
-            action = np.array([1.0, 0.0873])
-        elif t == 15:
-            action = np.array([1.0, -0.0873])
-        elif t == 30:
-            action = np.array([1.0, 0.1745])
+    while True:
+
+        while t < max_t:
+
+            # Hardcoded trajectory
+            if t == 5:
+                action = np.array([1.0, 0.0873])
+            elif t > 15 and t < 30:
+                action = np.array([1.0, -0.0873])
+            else:
+                action = np.array([1.0, 0])
+
+            nextstate, reward, done, _ = env.step(action)
+            env.render()
+            t += 1
+
+        if query_yes_no('Continue simulation?'):
+            t = 0
         else:
-            action = np.array([1.0, 0])
-
-        nextstate, reward, done, _ = env.step(action)
-        env.render()
-        t += 1
+            break
 
 
 if __name__ == '__main__':
