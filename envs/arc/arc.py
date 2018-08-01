@@ -91,7 +91,7 @@ class ArcEnv(VehicleEnv):
                 target_velocity = 0.7
                 lambda1 = 0.25
                 velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-                distance = np.abs(y)
+                distance = np.abs(r-np.sqrt(np.square(x-r)+np.square(y)))
                 reward = -distance
                 reward -= lambda1 * np.square(velocity - target_velocity)
 

@@ -56,8 +56,7 @@ class StraightEnv(VehicleEnv):
         """
         Get initial state of car when simulation is reset.
         """
-        state = np.zeros(6)
-        return state
+        return np.zeros(6)
 
 
     def step(self, action):
@@ -72,7 +71,7 @@ class StraightEnv(VehicleEnv):
         # Check collision and assign reward to transition
         collision = self._check_collision(nextstate)
         if collision:
-            reward = -100
+            reward = -50
             done = True
         else:
             self._state = nextstate
@@ -88,9 +87,9 @@ class StraightEnv(VehicleEnv):
                 r = goal[0] / 2
                 x, y, _, x_dot, y_dot, _ = nextstate
                 target_velocity = 0.7
-                lambda1 = 0.25
+                lambda1 = 0.5
                 velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-                distance = np.abs(r-np.sqrt(np.square(x-r)+np.square(y)))
+                distance = np.abs(y)
                 reward = -distance
                 reward -= lambda1 * np.square(velocity - target_velocity)
 
