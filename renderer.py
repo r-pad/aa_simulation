@@ -37,8 +37,11 @@ class _Renderer(object):
         self._ax = self._fig.add_subplot(111)
         self._ax.set_aspect('equal')
         if env_type == 'EmptyEnv':
-            self._ax.set_xlim(-1, 5)
-            self._ax.set_ylim(-3, 3)
+            self._ax.set_xlim(-1, 4)
+            self._ax.set_ylim(-2, 2)
+        elif env_type == 'ArcRelativeEnv':
+            self._ax.set_xlim(-2.5, 2.5)
+            self._ax.set_ylim(-2.5, 2.5)
         else:
             self._ax.set_xlim(-1, 4)
             self._ax.set_ylim(-2, 2)
@@ -51,6 +54,10 @@ class _Renderer(object):
         elif env_type == 'ArcEnv':
             arc = patches.Arc((goal[0]/2, 0), goal[0], goal[0],
                     0, 180, 360, color='c', ls=':')
+            self._ax.add_patch(arc)
+        elif env_type == 'ArcRelativeEnv':
+            arc = patches.Arc((0, 0), 3, 3,
+                    0, 0, 360, color='c', ls=':')
             self._ax.add_patch(arc)
 
         # Draw remaining simulation

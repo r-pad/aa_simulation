@@ -4,7 +4,7 @@
 @author: edwardahn
 
 Environment for driving car in circular arc trajectory using relative
-coordinates
+coordinates.
 """
 
 import csv
