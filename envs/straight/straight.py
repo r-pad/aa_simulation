@@ -71,7 +71,7 @@ class StraightEnv(VehicleEnv):
         # Check collision and assign reward to transition
         collision = self._check_collision(nextstate)
         if collision:
-            reward = -50
+            reward = -30
             done = True
         else:
             self._state = nextstate
@@ -87,7 +87,7 @@ class StraightEnv(VehicleEnv):
                 r = goal[0] / 2
                 x, y, _, x_dot, y_dot, _ = nextstate
                 target_velocity = 0.7
-                lambda1 = 0.5
+                lambda1 = 0.65
                 velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
                 distance = np.abs(y)
                 reward = -distance
