@@ -91,6 +91,21 @@ class ArcRelativeEnv(VehicleEnv):
                 done=done)
 
 
+    def reset(self):
+        """
+        Reset environment back to original state.
+        """
+        self._action = None
+        self._state = self.get_initial_state
+        observation = self._state_to_relative(self._state)
+
+        # Reset renderer if available
+        if self._renderer is not None:
+            self._renderer.reset()
+
+        return observation
+
+
     def _state_to_relative(self, state):
         """
         Convert state [x, y, yaw, x_dot, y_dot, yaw_dot] to
@@ -98,6 +113,13 @@ class ArcRelativeEnv(VehicleEnv):
         """
         r = self.radius
         x, y, yaw, x_dot, y_dot, yaw_dot = state
+
+        # Prevent nan from division by zero
+        if yaw == 0:
+            yaw = 0.000001
+        if yaw_dot == 0:
+            yaw_dot = 0.000001
+
         c = (x*np.tan(yaw)-y) / (np.tan(yaw) + 1/np.tan(yaw))
         d = -1/np.tan(yaw) * c
         dx = np.sqrt(np.square(c) + np.square(d)) - r
@@ -106,5 +128,6 @@ class ArcRelativeEnv(VehicleEnv):
         d_dot = -1/np.tan(yaw_dot) * c_dot
         dx_dot = np.sqrt(np.square(c_dot) + np.square(d_dot)) - r
         dy_dot = np.sqrt(np.square(x_dot-c_dot) + np.square(y_dot-d_dot))
+
         return np.array([dx, dy, yaw, dx_dot, dy_dot, yaw_dot])
 

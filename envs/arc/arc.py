@@ -81,7 +81,6 @@ class ArcEnv(VehicleEnv):
                 reward = 0
                 done = True
             else:
-                location = nextstate[0:2]
                 goal = self._goal[0:2]
                 done = False
 
