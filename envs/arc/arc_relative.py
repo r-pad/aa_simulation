@@ -44,7 +44,7 @@ class ArcRelativeEnv(VehicleEnv):
 
     @property
     def observation_space(self):
-        return Box(low=-np.inf, high=np.inf, shape=(6,))
+        return Box(low=-np.inf, high=np.inf, shape=(2,))
 
 
     @property
@@ -124,10 +124,6 @@ class ArcRelativeEnv(VehicleEnv):
         d = -1/np.tan(yaw) * c
         dx = np.sqrt(np.square(c) + np.square(d)) - r
         dy = np.sqrt(np.square(x-c) + np.square(y-d))
-        c_dot = (x_dot*np.tan(yaw_dot)-y_dot) / (np.tan(yaw_dot) + 1/np.tan(yaw_dot))
-        d_dot = -1/np.tan(yaw_dot) * c_dot
-        dx_dot = np.sqrt(np.square(c_dot) + np.square(d_dot)) - r
-        dy_dot = np.sqrt(np.square(x_dot-c_dot) + np.square(y_dot-d_dot))
 
-        return np.array([dx, dy, yaw, dx_dot, dy_dot, yaw_dot])
+        return np.array([dx, dy])
 
