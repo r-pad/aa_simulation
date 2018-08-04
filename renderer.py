@@ -39,7 +39,7 @@ class _Renderer(object):
         if env_type == 'EmptyEnv':
             self._ax.set_xlim(-1, 4)
             self._ax.set_ylim(-2, 2)
-        elif env_type == 'ArcRelativeEnv':
+        elif env_type == 'ArcRelativeEnv' or env_type == 'ArcRelativeEnv2':
             self._ax.set_xlim(-2.5, 2.5)
             self._ax.set_ylim(-2.5, 2.5)
         else:
@@ -55,7 +55,7 @@ class _Renderer(object):
             arc = patches.Arc((goal[0]/2, 0), goal[0], goal[0],
                     0, 180, 360, color='c', ls=':')
             self._ax.add_patch(arc)
-        elif env_type == 'ArcRelativeEnv':
+        elif env_type == 'ArcRelativeEnv' or env_type == 'ArcRelativeEnv2':
             arc = patches.Arc((0, 0), 3, 3,
                     0, 0, 360, color='c', ls=':')
             self._ax.add_patch(arc)
