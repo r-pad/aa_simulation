@@ -115,13 +115,11 @@ class ArcRelativeEnv2(VehicleEnv):
         x, y, yaw, x_dot, y_dot, yaw_dot = state
 
         dx = np.sqrt(np.square(x) + np.square(y)) - r
-        dx_dot = np.sqrt(np.square(x_dot) + np.square(y_dot))
-        theta = self._normalize_angle(np.arctan2(-x, y) - yaw)
-        theta_dot = self._normalize_angle(np.arctan2(-x_dot, y_dot) - yaw_dot)
-        print('theta = %f', theta)
-        print('theta_dot = %f', theta_dot)
+        theta = self._normalize_angle(np.arctan2(-x, y) + np.pi - yaw)
+        ddx = x/(x**2 + y**2)**0.5*x_dot + y/(x**2 + y**2)**0.5*y_dot
+        dtheta = x/(x**2 + y**2)*x_dot - y/(x**2 + y**2)*y_dot - yaw_dot
 
-        return np.array([dx, dx_dot, theta, theta_dot])
+        return np.array([dx, theta, ddx, dtheta])
 
 
     def _normalize_angle(self, angle):
