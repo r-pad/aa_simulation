@@ -21,20 +21,15 @@ def main():
     env.render()
 
     t = 0
-    max_t = 50
+    max_t = 100
 
     while True:
 
         while t < max_t:
-
-            # Hardcoded trajectory
-            if t == 5:
-                action = np.array([1.0, 0.0873])
-            elif t > 15 and t < 30:
-                action = np.array([1.0, -0.0873])
+            if t < max_t / 2:
+                action = np.array([1.0, np.deg2rad(15)])
             else:
-                action = np.array([1.0, 0])
-
+                action = np.array([1.0, -np.deg2rad(15)])
             nextstate, reward, done, _ = env.step(action)
             env.render()
             t += 1
