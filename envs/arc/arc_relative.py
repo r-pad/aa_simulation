@@ -44,7 +44,7 @@ class ArcRelativeEnv(VehicleEnv):
 
     @property
     def observation_space(self):
-        return Box(low=-np.inf, high=np.inf, shape=(2,))
+        return Box(low=-np.inf, high=np.inf, shape=(4,))
 
 
     @property
@@ -120,9 +120,20 @@ class ArcRelativeEnv(VehicleEnv):
             d = -1/np.tan(yaw) * c
             dx = np.sqrt(np.square(c) + np.square(d)) - r
             dy = np.sqrt(np.square(x-c) + np.square(y-d))
+            ddxa = -((2*(y - x*np.tan(yaw)))/(np.tan(yaw)*(np.tan(yaw) + 1/np.tan(yaw))**2) + (2*np.tan(yaw)*(y - x*np.tan(yaw)))/(np.tan(yaw) + 1/np.tan(yaw))**2)/(2*((y - x*np.tan(yaw))**2/(np.tan(yaw) + 1/np.tan(yaw))**2 + (y - x*np.tan(yaw))**2/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))**(1/2))
+            ddxb = ((2*y - 2*x*np.tan(yaw))/(np.tan(yaw) + 1/np.tan(yaw))**2 + (2*y - 2*x*np.tan(yaw))/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))/(2*((y - x*np.tan(yaw))**2/(np.tan(yaw) + 1/np.tan(yaw))**2 + (y - x*np.tan(yaw))**2/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))**(1/2))
+            ddxphi = -((2*(y - x*np.tan(yaw))**2*(np.tan(yaw)**2 - (np.tan(yaw)**2 + 1)/np.tan(yaw)**2 + 1))/(np.tan(yaw) + 1/np.tan(yaw))**3 + (2*(y - x*np.tan(yaw))**2*(np.tan(yaw)**2 + 1))/(np.tan(yaw)**3*(np.tan(yaw) + 1/np.tan(yaw))**2) + (2*(y - x*np.tan(yaw))**2*(np.tan(yaw)**2 - (np.tan(yaw)**2 + 1)/np.tan(yaw)**2 + 1))/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**3) + (2*x*(y - x*np.tan(yaw))*(np.tan(yaw)**2 + 1))/(np.tan(yaw) + 1/np.tan(yaw))**2 + (2*x*(y - x*np.tan(yaw))*(np.tan(yaw)**2 + 1))/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))/(2*((y - x*np.tan(yaw))**2/(np.tan(yaw) + 1/np.tan(yaw))**2 + (y - x*np.tan(yaw))**2/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))**(1/2))
+            ddx = ddxa*x_dot + ddxb*y_dot + ddxphi*yaw_dot
+            ddya = ((2*(y - (y - x*np.tan(yaw))/(np.tan(yaw)*(np.tan(yaw) + 1/np.tan(yaw)))))/(np.tan(yaw) + 1/np.tan(yaw)) - 2*(np.tan(yaw)/(np.tan(yaw) + 1/np.tan(yaw)) - 1)*(x + (y - x*np.tan(yaw))/(np.tan(yaw) + 1/np.tan(yaw))))/(2*((x + (y - x*np.tan(yaw))/(np.tan(yaw) + 1/np.tan(yaw)))**2 + (y - (y - x*np.tan(yaw))/(np.tan(yaw)*(np.tan(yaw) + 1/np.tan(yaw))))**2)**(1/2))
+            ddyb = ((2*y - 2*x*np.tan(yaw))/(np.tan(yaw) + 1/np.tan(yaw))**2 + (2*y - 2*x*np.tan(yaw))/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))/(2*((y - x*np.tan(yaw))**2/(np.tan(yaw) + 1/np.tan(yaw))**2 + (y - x*np.tan(yaw))**2/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))**(1/2))
+            ddyphi = -((2*(y - x*np.tan(yaw))**2*(np.tan(yaw)**2 - (np.tan(yaw)**2 + 1)/np.tan(yaw)**2 + 1))/(np.tan(yaw) + 1/np.tan(yaw))**3 + (2*(y - x*np.tan(yaw))**2*(np.tan(yaw)**2 + 1))/(np.tan(yaw)**3*(np.tan(yaw) + 1/np.tan(yaw))**2) + (2*(y - x*np.tan(yaw))**2*(np.tan(yaw)**2 - (np.tan(yaw)**2 + 1)/np.tan(yaw)**2 + 1))/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**3) + (2*x*(y - x*np.tan(yaw))*(np.tan(yaw)**2 + 1))/(np.tan(yaw) + 1/np.tan(yaw))**2 + (2*x*(y - x*np.tan(yaw))*(np.tan(yaw)**2 + 1))/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))/(2*((y - x*np.tan(yaw))**2/(np.tan(yaw) + 1/np.tan(yaw))**2 + (y - x*np.tan(yaw))**2/(np.tan(yaw)**2*(np.tan(yaw) + 1/np.tan(yaw))**2))**(1/2))
+            ddy = ddya*x_dot + ddyb*y_dot + ddyphi*yaw_dot
         else:
             dx = y
             dy = x
+            ddx = np.sign(y)*y_dot - np.sign(x)*np.sign(y)*x*yaw_dot
+            ddy = np.sign(x)*x_dot + np.sign(y)*y_dot \
+                    - np.sign(x)*np.sign(y)*x*yaw_dot
 
-        return np.array([dx, dy])
+        return np.array([dx, dy, ddx, ddy])
 
