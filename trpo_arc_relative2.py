@@ -7,6 +7,8 @@ Train a policy using TRPO so that a vehicle follow a trajectory
 resembling an arc from a circle using relative coordinates
 """
 
+import numpy as np
+
 from rllab.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.envs.base import Env
@@ -33,7 +35,7 @@ def run_task(*_):
         baseline=baseline,
         batch_size=1000,
         max_path_length=env.horizon,
-        n_itr=500,
+        n_itr=350,
         discount=0.99,
         step_size=0.01,
         plot=False,
@@ -44,7 +46,7 @@ def run_task(*_):
 run_experiment_lite(
     run_task,
     n_parallel=1,
-    snapshot_mode="last",   # Keep snapshot params for last iteration
-    seed=109,
+    snapshot_mode="last",
+    seed=np.random.randint(1, 1000000),
     plot=False,
 )
