@@ -41,14 +41,6 @@ class ArcRelativeEnv2(VehicleEnv):
         # Radius of trajectory to follow
         self.radius = 1.5
 
-        # For recording metrics
-        self._dxs = []
-        self._thetas = []
-        self._dx_dots = []
-        self._theta_dots = []
-        self._distances = []
-        self._velocities = []
-
 
     @property
     def observation_space(self):
@@ -95,10 +87,13 @@ class ArcRelativeEnv2(VehicleEnv):
             reward = -distance
             reward -= lambda1 * np.square(vel_diff)
 
-        next_observation = self._state_to_relative(nextstate)
-        if self._record_metrics:
-            self._add_metric(next_observation, distance, vel_diff)
+            if self._record_reward:
+                self._distances.append(distance)
+                self._velocities.append(vel_diff)
+                np.savez('reward_metrics.npz', dist=self._distances,
+                        vel=self._velocities)
 
+        next_observation = self._state_to_relative(nextstate)
         return Step(observation=next_observation, reward=reward,
                 done=done)
 
@@ -114,6 +109,13 @@ class ArcRelativeEnv2(VehicleEnv):
         # Reset renderer if available
         if self._renderer is not None:
             self._renderer.reset()
+
+        # For recording metrics
+        self._record_reward = True
+        if self._record_reward:
+            print('RECORDING REWARD METRICS...')
+            self._distances = []
+            self._velocities = []
 
         return observation
 
@@ -133,27 +135,6 @@ class ArcRelativeEnv2(VehicleEnv):
 
         #return np.array([dx/0.012, theta/0.067, ddx/-0.4139, dtheta/-0.6505])
         return np.array([dx, theta, ddx, dtheta])
-
-
-    def _add_metric(self, observation, distance, velocity):
-        """
-        Add metric to arrays for evaluation later.
-        """
-        self._dxs.append(observation[0])
-        self._thetas.append(observation[1])
-        self._dx_dots.append(observation[2])
-        self._theta_dots.append(observation[3])
-        self._distances.append(distance)
-        self._velocities.append(velocity)
-
-
-    def save_metrics(self):
-        """
-        Save metrics to view later.
-        """
-        np.savez('metrics.npz', dx=self._dxs, theta=self._thetas,
-                dx_dot=self._dx_dots, theta_dot=self._theta_dots,
-                distance=self._distances, velocity=self._velocities)
 
 
     def _normalize_angle(self, angle):

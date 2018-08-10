@@ -34,7 +34,6 @@ def rollout(env, agent, max_path_length, animated):
     Based on rollout() in rllab.misc.utils, with metrics.
     """
     state = env.reset()
-    env.record_metrics()
     agent.reset()
     path_length = 0
     if animated:
@@ -48,7 +47,6 @@ def rollout(env, agent, max_path_length, animated):
         state = nextstate
         if animated:
             env.render()
-    env.save_metrics()
 
 
 def parse_arguments():
