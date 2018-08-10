@@ -139,10 +139,10 @@ class ArcRelativeEnv2(VehicleEnv):
         """
         Add metric to arrays for evaluation later.
         """
-        self._dxs.append(dx)
-        self._thetas.append(theta)
-        self._dx_dots.append(ddx)
-        self._theta_dots.append(dtheta)
+        self._dxs.append(observation[0])
+        self._thetas.append(observation[1])
+        self._dx_dots.append(observation[2])
+        self._theta_dots.append(observation[3])
         self._distances.append(distance)
         self._velocities.append(velocity)
 
