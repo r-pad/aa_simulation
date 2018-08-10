@@ -47,6 +47,9 @@ class VehicleEnv(Env):
         # Instantiates object handling simulation renderings
         self._renderer = None
 
+        # Don't record metrics unless toggled by record_metrics()
+        self._record_metrics = False
+
 
     @property
     def observation_space(self):
@@ -103,6 +106,20 @@ class VehicleEnv(Env):
     def get_initial_state(self):
         """
         Get initial state of car when simulation is reset.
+        """
+        raise NotImplementedError
+
+
+    def record_metrics(self):
+        """
+        Toggle boolean to True to record metrics for one rollout.
+        """
+        self._record_metrics = True
+
+
+    def save_metrics(self):
+        """
+        Save metrics to show later.
         """
         raise NotImplementedError
 
