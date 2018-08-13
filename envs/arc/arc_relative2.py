@@ -72,6 +72,8 @@ class ArcRelativeEnv2(VehicleEnv):
         if collision:
             reward = -100
             done = True
+            distance = np.inf
+            vel_diff = np.inf
         else:
             self._state = nextstate
             done = False
@@ -87,15 +89,9 @@ class ArcRelativeEnv2(VehicleEnv):
             reward = -distance
             reward -= lambda1 * np.square(vel_diff)
 
-            if self._record_reward:
-                self._distances.append(distance)
-                self._velocities.append(vel_diff)
-                np.savez('reward_metrics.npz', dist=self._distances,
-                        vel=self._velocities)
-
         next_observation = self._state_to_relative(nextstate)
         return Step(observation=next_observation, reward=reward,
-                done=done)
+                done=done, dist=distance, vel=vel_diff)
 
 
     def reset(self):
@@ -109,13 +105,6 @@ class ArcRelativeEnv2(VehicleEnv):
         # Reset renderer if available
         if self._renderer is not None:
             self._renderer.reset()
-
-        # For recording metrics
-        self._record_reward = True
-        if self._record_reward:
-            print('RECORDING REWARD METRICS...')
-            self._distances = []
-            self._velocities = []
 
         return observation
 
