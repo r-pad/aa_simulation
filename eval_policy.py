@@ -27,8 +27,22 @@ def profile_code(profiler):
 def plot_metrics(env_infos):
     dist = env_infos['dist']
     vel = env_infos['vel']
-    print(dist)
-    print(vel)
+
+    # Plot histogram of distance error
+    plt.figure()
+    plt.hist(dist)
+    plt.title('Distribution of Distance Errors in Final Policy')
+    plt.xlabel('Error (m)')
+    plt.ylabel('Number of Time Steps')
+
+    # Plot histogram of velocity error
+    plt.figure()
+    plt.hist(vel)
+    plt.title('Distribution of Velocity Errors in Final Policy')
+    plt.xlabel('Error (m/s)')
+    plt.ylabel('Number of Time Steps')
+
+    plt.show()
 
 
 def parse_arguments():
@@ -58,15 +72,17 @@ def main():
     # Sample one rollout
     profiler.enable()
     path = rollout(env, policy, max_path_length=args.max_path_length,
-                        animated=args.render, speedup=args.speedup)
+                        animated=args.render, speedup=args.speedup,
+                        always_return_paths=True)
     profiler.disable()
-    if args.render:
-        sys.stdout.write("Press <enter> to continue: ")
-        input()
 
     # Policy analysis
     profile_code(profiler)
     plot_metrics(path['env_infos'])
+
+    # Block until key is pressed
+    sys.stdout.write("Press <enter> to continue: ")
+    input()
 
 
 if __name__ == "__main__":

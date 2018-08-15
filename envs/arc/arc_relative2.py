@@ -85,8 +85,8 @@ class ArcRelativeEnv2(VehicleEnv):
             lambda1 = 0.25
             velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
             vel_diff = velocity - target_velocity
-            distance = np.abs(r-np.sqrt(np.square(x)+np.square(y)))
-            reward = -distance
+            distance = r-np.sqrt(np.square(x)+np.square(y))
+            reward = -np.abs(distance)
             reward -= lambda1 * np.square(vel_diff)
 
         next_observation = self._state_to_relative(nextstate)
