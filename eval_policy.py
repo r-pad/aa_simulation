@@ -19,29 +19,37 @@ from rllab.sampler.utils import rollout
 
 
 def profile_code(profiler):
+    """
+    Use cProfile to profile code, listing functions with most
+    cumulative time spent.
+    """
     print('\n')
     ps = pstats.Stats(profiler).strip_dirs().sort_stats('cumulative')
     ps.print_stats(10)
 
 
-def plot_metrics(env_infos):
-    dist = env_infos['dist']
-    vel = env_infos['vel']
+def plot_metrics(error, name, units):
+    """
+    Plot histogram of error.
+    """
+    mean = error.mean()
+    std = error.std()
+    maximum = error.max()
+    minimum = error.min()
+    stats = 'Mean = %.3f\nStd = %.3f\nMax = %.3f\nMin = %.3f' % \
+            (mean, std, maximum, minimum)
+    title = 'Distribution of %s Errors in Final Policy' % name
 
-    # Plot histogram of distance error
     plt.figure()
-    plt.hist(dist)
-    plt.title('Distribution of Distance Errors in Final Policy')
-    plt.xlabel('Error (m)')
+    plt.hist(error)
+    plt.title(title)
+    plt.xlabel('Error (%s)' % units)
     plt.ylabel('Number of Time Steps')
-
-    # Plot histogram of velocity error
-    plt.figure()
-    plt.hist(vel)
-    plt.title('Distribution of Velocity Errors in Final Policy')
-    plt.xlabel('Error (m/s)')
-    plt.ylabel('Number of Time Steps')
-
+    plt.axvline(mean, color='k', linestyle='dashed', linewidth=1)
+    plt.axvline(mean+std, color='r', linestyle='dashed', linewidth=1)
+    plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
+    plt.text(0.87, 0.9, stats, ha='center', va='center',
+            transform=plt.gca().transAxes)
     plt.show()
 
 
@@ -78,7 +86,8 @@ def main():
 
     # Policy analysis
     profile_code(profiler)
-    plot_metrics(path['env_infos'])
+    plot_metrics(path['env_infos']['dist'], 'Distance', 'm')
+    plot_metrics(path['env_infos']['vel'], 'Velocity', 'm/s')
 
     # Block until key is pressed
     sys.stdout.write("Press <enter> to continue: ")
