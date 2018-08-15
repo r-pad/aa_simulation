@@ -76,6 +76,7 @@ def main():
     data = joblib.load(args.file)
     policy = data['policy']
     env = data['env']
+    plt.ion()
 
     # Sample one rollout
     profiler.enable()
