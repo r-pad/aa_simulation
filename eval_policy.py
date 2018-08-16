@@ -28,15 +28,34 @@ def profile_code(profiler):
     ps.print_stats(10)
 
 
-def plot_metrics(error, name, units):
+def plot_curve(error, name, units):
     """
-    Plot histogram of error.
+    Plot error over time.
+    """
+    title = '%s Error over Time in Final Policy' % name
+
+    plt.figure()
+    t = np.arange(error.size)
+    plt.plot(t, error)
+    plt.title(title)
+    plt.xlabel('Time steps')
+    plt.ylabel('Error (%s)' % units)
+    if name == 'Distance':
+        plt.gca().set_ylim((-0.01, 0.01))
+    else:
+        plt.gca().set_ylim((-0.7, 0.7))
+    plt.show()
+
+
+def plot_distribution(error, name, units):
+    """
+    Plot histogram showing distribution of error.
     """
     mean = error.mean()
     std = error.std()
     maximum = error.max()
     minimum = error.min()
-    stats = 'Mean = %.3f\nStd = %.3f\nMax = %.3f\nMin = %.3f' % \
+    stats = 'Mean = %.5f\nStd = %.5f\nMax = %.5f\nMin = %.5f' % \
             (mean, std, maximum, minimum)
     title = 'Distribution of %s Errors in Final Policy' % name
 
@@ -87,8 +106,10 @@ def main():
 
     # Policy analysis
     profile_code(profiler)
-    plot_metrics(path['env_infos']['dist'], 'Distance', 'm')
-    plot_metrics(path['env_infos']['vel'], 'Velocity', 'm/s')
+    plot_curve(path['env_infos']['dist'], 'Distance', 'm')
+    plot_curve(path['env_infos']['vel'], 'Velocity', 'm/s')
+    plot_distribution(path['env_infos']['dist'], 'Distance', 'm')
+    plot_distribution(path['env_infos']['vel'], 'Velocity', 'm/s')
 
     # Block until key is pressed
     sys.stdout.write("Press <enter> to continue: ")
