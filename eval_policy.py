@@ -97,6 +97,9 @@ def main():
     env = data['env']
     plt.ion()
 
+    # Set fixed random seed
+    np.random.seed(9)
+
     # Sample one rollout
     profiler.enable()
     path = rollout(env, policy, max_path_length=args.max_path_length,
