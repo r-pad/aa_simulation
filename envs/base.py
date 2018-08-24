@@ -42,7 +42,7 @@ class VehicleEnv(Env):
         self._goal = None
 
         # Time between each simulation iteration
-        self._dt = 0.02
+        self._dt = 0.035
 
         # Instantiates object handling simulation renderings
         self._renderer = None
