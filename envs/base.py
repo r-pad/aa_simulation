@@ -113,11 +113,7 @@ class VehicleEnv(Env):
         vels = np.abs(vels)
 
         logger.record_tabular('AverageAbsDistanceError', np.mean(dists))
-        logger.record_tabular('MaxAbsDistanceError', np.max(dists))
-
         logger.record_tabular('AverageAbsVelocityError', np.mean(vels))
-        logger.record_tabular('MaxAbsVelocityError', np.max(vels))
-        logger.record_tabular('MinAbsVelocityError', np.min(vels))
 
 
     @property
