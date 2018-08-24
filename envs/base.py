@@ -11,6 +11,7 @@ import yaml
 import numpy as np
 
 from rllab.envs.base import Env
+from rllab.misc import logger
 from rllab.spaces import Box
 
 from car_simulation.model import VehicleModel
@@ -97,6 +98,26 @@ class VehicleEnv(Env):
             self._renderer = _Renderer(self._params, self._obstacles,
                     self._goal, self.__class__.__name__)
         self._renderer.update(self._state, self._action)
+
+
+    def log_diagnostics(self, paths):
+        """
+        Log extra information per iteration based on collected paths.
+        """
+        dists = []
+        vels = []
+        for path in paths:
+            dists.append(path['env_infos']['dist'])
+            vels.append(path['env_infos']['vel'])
+        dists = np.abs(dists)
+        vels = np.abs(vels)
+
+        logger.record_tabular('AverageAbsDistanceError', np.mean(dists))
+        logger.record_tabular('MaxAbsDistanceError', np.max(dists))
+
+        logger.record_tabular('AverageAbsVelocityError', np.mean(vels))
+        logger.record_tabular('MaxAbsVelocityError', np.max(vels))
+        logger.record_tabular('MinAbsVelocityError', np.min(vels))
 
 
     @property
