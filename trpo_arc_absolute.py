@@ -17,7 +17,7 @@ from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 
 
 def run_task(*_):
-    env = normalize(load_class('car_simulation.envs.arc.arc',
+    env = normalize(load_class('car_simulation.envs.arc.arc_absolute',
         Env, ["rllab", "envs"])())
 
     policy = GaussianMLPPolicy(
