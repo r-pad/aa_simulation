@@ -39,11 +39,18 @@ class VehicleModel(object):
         self.mu = params['mu']              # Coeff. of friction
         self.mu_s = params['mu_s']          # Sliding coeff. of friction
 
+        # Minimum velocity needed to overcome static friction
+        self.stiction_velocity = 0.8
+
 
     def state_transition(self, X, U, dt):
         """
         Update state after some timestep.
         """
+        # Don't move robot if command doesn't overcome static friction
+        if (abs(U[0]) < self.stiction_velocity):
+            return X
+
         t = np.array([0, dt])
         X_new = solve_ivp(lambda t, X: self._dynamics(X, t, U), t, X,
                 atol=1e-5)
