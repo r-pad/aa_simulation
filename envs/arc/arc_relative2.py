@@ -39,7 +39,7 @@ class ArcRelativeEnv2(VehicleEnv):
             self._obstacles = np.array(obstacle_list)
 
         # Radius of trajectory to follow
-        self.radius = 1.5
+        self.radius = 1
 
 
     @property
