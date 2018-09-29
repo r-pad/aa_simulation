@@ -87,7 +87,7 @@ class ArcEnv(VehicleEnv):
                 # Trajectory following
                 r = goal[0] / 2
                 x, y, _, x_dot, y_dot, _ = nextstate
-                target_velocity = 0.7
+                target_velocity = VehicleEnv._TARGET_VELOCITY
                 lambda1 = 0.25
                 velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
                 vel_diff = velocity - target_velocity

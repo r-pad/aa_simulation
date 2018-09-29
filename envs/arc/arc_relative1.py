@@ -79,10 +79,9 @@ class ArcRelativeEnv(VehicleEnv):
             # Trajectory following
             r = self.radius
             x, y, _, x_dot, y_dot, _ = nextstate
-            target_velocity = 0.7
             lambda1 = 0.25
             velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-            vel_diff = velocity - target_velocity
+            vel_diff = velocity - VehicleEnv._TARGET_VELOCITY
             distance = r-np.sqrt(np.square(x)+np.square(y))
             reward = -np.abs(distance)
             reward -= lambda1 * np.square(vel_diff)
