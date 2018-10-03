@@ -26,7 +26,7 @@ class VehicleEnv(Env):
 
     _MIN_VELOCITY = 0.0
     _MAX_VELOCITY = 1.3
-    _TARGET_VELOCITY = 0.9
+    _TARGET_VELOCITY = 1.0
     _MAX_STEER_ANGLE = np.deg2rad(45)
     _HORIZON_LENGTH = 200
 
