@@ -26,12 +26,11 @@ class VehicleEnv(Env):
 
     _MIN_VELOCITY = 0.0
     _MAX_VELOCITY = 1.3
-    _TARGET_VELOCITY = 1.0
     _MAX_STEER_ANGLE = np.deg2rad(45)
     _HORIZON_LENGTH = 200
 
 
-    def __init__(self):
+    def __init__(self, target_velocity):
         """
         Initialize environment parameters.
         """
@@ -42,6 +41,7 @@ class VehicleEnv(Env):
         self._action = None
         self._obstacles = []
         self._goal = None
+        self.target_velocity = target_velocity
 
         # Time between each simulation iteration
         self._dt = 0.035

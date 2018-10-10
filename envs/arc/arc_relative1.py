@@ -23,11 +23,11 @@ class ArcRelativeEnv1(VehicleEnv):
     arc trajectory using relative coordinates.
     """
 
-    def __init__(self, radius):
+    def __init__(self, radius, target_velocity):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(ArcRelativeEnv1, self).__init__()
+        super(ArcRelativeEnv1, self).__init__(target_velocity)
 
         # Get obstacles from CSV file
         #   Convention: (x, y, r) for each obstacle, which is a circle
@@ -81,7 +81,7 @@ class ArcRelativeEnv1(VehicleEnv):
             x, y, _, x_dot, y_dot, _ = nextstate
             lambda1 = 0.25
             velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-            vel_diff = velocity - VehicleEnv._TARGET_VELOCITY
+            vel_diff = velocity - self.target_velocity
             distance = r-np.sqrt(np.square(x)+np.square(y))
             reward = -np.abs(distance)
             reward -= lambda1 * np.square(vel_diff)

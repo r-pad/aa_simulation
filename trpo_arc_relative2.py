@@ -22,7 +22,8 @@ from car_simulation.envs.arc.arc_relative2 import ArcRelativeEnv2
 
 def run_task(*_):
     radius = 1
-    env = normalize(ArcRelativeEnv2(radius))
+    target_velocity = 0.7
+    env = normalize(ArcRelativeEnv2(radius, target_velocity))
 
     policy = GaussianMLPPolicy(
         env_spec=env.spec,
