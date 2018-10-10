@@ -17,17 +17,17 @@ from rllab.spaces import Box
 from car_simulation.envs.base import VehicleEnv
 
 
-class ArcRelativeEnv(VehicleEnv):
+class ArcRelativeEnv1(VehicleEnv):
     """
     Simulation environment for an RC car following a circular
     arc trajectory using relative coordinates.
     """
 
-    def __init__(self):
+    def __init__(self, radius):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(ArcRelativeEnv, self).__init__()
+        super(ArcRelativeEnv1, self).__init__()
 
         # Get obstacles from CSV file
         #   Convention: (x, y, r) for each obstacle, which is a circle
@@ -39,7 +39,7 @@ class ArcRelativeEnv(VehicleEnv):
             self._obstacles = np.array(obstacle_list)
 
         # Radius of trajectory to follow
-        self.radius = 1
+        self.radius = radius
 
 
     @property

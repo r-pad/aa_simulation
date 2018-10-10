@@ -17,10 +17,12 @@ from rllab.misc.instrument import run_experiment_lite
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 
+from car_simulation.envs.arc.arc_relative2 import ArcRelativeEnv2
+
 
 def run_task(*_):
-    env = normalize(load_class('car_simulation.envs.arc.arc_relative2',
-        Env, ["rllab", "envs"])())
+    radius = 1
+    env = normalize(ArcRelativeEnv2(radius))
 
     policy = GaussianMLPPolicy(
         env_spec=env.spec,

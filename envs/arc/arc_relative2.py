@@ -23,7 +23,7 @@ class ArcRelativeEnv2(VehicleEnv):
     arc trajectory using relative coordinates.
     """
 
-    def __init__(self):
+    def __init__(self, radius):
         """
         Initialize super class parameters, obstacles and radius.
         """
@@ -39,7 +39,7 @@ class ArcRelativeEnv2(VehicleEnv):
             self._obstacles = np.array(obstacle_list)
 
         # Radius of trajectory to follow
-        self.radius = 1
+        self.radius = radius
 
 
     @property
