@@ -47,14 +47,6 @@ class VehicleModel(object):
         """
         Update state after some timestep.
         """
-        # Don't move robot if command doesn't overcome static friction
-        if (abs(U[0]) < self.stiction_velocity):
-            X_new = np.zeros(6)
-            X_new[0] = X[0]
-            X_new[1] = X[1]
-            X_new[2] = X[2]
-            return X_new
-
         t = np.array([0, dt])
         X_new = solve_ivp(lambda t, X: self._dynamics(X, t, U), t, X,
                 atol=1e-5)
