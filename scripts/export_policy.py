@@ -3,7 +3,7 @@
 """
 @author: edwardahn
 
-Save rllab's policy into a format that the robot can read. To do this,
+Export rllab's policy into a format that the robot can read. To do this,
 load params.pkl saved by rllab, access the trained Theano model, and
 save that model as a pickle file.
 """
