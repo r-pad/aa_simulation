@@ -3,8 +3,8 @@
 """
 @author: edwardahn
 
-Train a policy using TRPO so that a vehicle follow a trajectory
-resembling an arc from a circle using relative coordinates.
+Train local planner using TRPO so that a vehicle can follow a sequence
+of arbitrary curvatures.
 """
 
 import numpy as np
@@ -18,8 +18,7 @@ from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 
-from car_simulation.envs.arc.arc_relative1 import ArcRelativeEnv1
-from car_simulation.envs.arc.arc_relative2 import ArcRelativeEnv2
+from car_simulation.envs.local_planner_env import LocalPlannerEnv
 
 
 def run_task(vv, log_dir=None, exp_name=None):
@@ -27,10 +26,7 @@ def run_task(vv, log_dir=None, exp_name=None):
     # Load environment
     radius = vv['radius']
     target_velocity = vv['target_velocity']
-    if vv['relative_type'] == 1:
-        env = normalize(ArcRelativeEnv1(radius, target_velocity))
-    if vv['relative_type'] == 2:
-        env = normalize(ArcRelativeEnv2(radius, target_velocity))
+    env = normalize(LocalPlannerEnv(radius, target_velocity))
 
     # Save variant information for comparison plots
     variant_file = logger.get_snapshot_dir() + '/variant.json'
@@ -60,7 +56,6 @@ def main():
 
     # Set up multiple experiments at once
     vg = VariantGenerator()
-    vg.add('relative_type', [1, 2])    # Relative state space convention
     vg.add('target_velocity', [0.7, 0.8, 0.9, 1.0])
     vg.add('radius', [1.0])
     vg.add('seed', [100, 200])

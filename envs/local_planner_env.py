@@ -3,8 +3,8 @@
 """
 @author: edwardahn
 
-Environment for driving car in circular arc trajectory using relative
-coordinates.
+Environment for training local planner to follow arbitrary
+curvatures.
 """
 
 import csv
@@ -14,10 +14,10 @@ import numpy as np
 from rllab.envs.base import Step
 from rllab.spaces import Box
 
-from car_simulation.envs.base import VehicleEnv
+from car_simulation.envs.base_env import VehicleEnv
 
 
-class ArcRelativeEnv2(VehicleEnv):
+class LocalPlannerEnv(VehicleEnv):
     """
     Simulation environment for an RC car following a circular
     arc trajectory using relative coordinates.
@@ -27,16 +27,7 @@ class ArcRelativeEnv2(VehicleEnv):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(ArcRelativeEnv2, self).__init__(target_velocity)
-
-        # Get obstacles from CSV file
-        #   Convention: (x, y, r) for each obstacle, which is a circle
-        filename = 'car_simulation/envs/arc/obstacles.csv'
-        with open(filename, 'rt') as csvfile:
-            reader = csv.reader(csvfile, delimiter=' ', quotechar='|')
-            values = list(reader)
-            obstacle_list = [[float(x) for x in row] for row in values]
-            self._obstacles = np.array(obstacle_list)
+        super(LocalPlannerEnv, self).__init__(target_velocity)
 
         # Radius of trajectory to follow
         self.radius = radius

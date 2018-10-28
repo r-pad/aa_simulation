@@ -14,8 +14,8 @@ from rllab.envs.base import Env
 from rllab.misc import logger
 from rllab.spaces import Box
 
-from car_simulation.model import VehicleModel
-from car_simulation.renderer import _Renderer
+from car_simulation.envs.model import VehicleModel
+from car_simulation.envs.renderer import _Renderer
 
 
 class VehicleEnv(Env):
@@ -35,7 +35,7 @@ class VehicleEnv(Env):
         Initialize environment parameters.
         """
         # Instantiate vehicle model and interpret parameters
-        stream = open('car_simulation/params.yaml', 'r')
+        stream = open('car_simulation/envs/model_params.yaml', 'r')
         self._params = yaml.load(stream)
         self._model = VehicleModel(self._params)
         self._action = None
