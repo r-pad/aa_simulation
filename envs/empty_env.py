@@ -11,7 +11,7 @@ import numpy as np
 from rllab.envs.base import Step
 from rllab.spaces import Box
 
-from car_simulation.envs.base import VehicleEnv
+from aa_simulation.envs.base import VehicleEnv
 
 
 class EmptyEnv(VehicleEnv):

@@ -15,7 +15,7 @@ from rllab.misc.resolve import load_class
 
 
 def main():
-    env = normalize(load_class('car_simulation.envs.empty_env',
+    env = normalize(load_class('aa_simulation.envs.empty_env',
         Env, ["rllab", "envs"])())
     state = env.reset()
     env.render()

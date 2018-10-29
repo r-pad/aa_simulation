@@ -18,7 +18,7 @@ from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 
-from car_simulation.envs.local_planner_env import LocalPlannerEnv
+from aa_simulation.envs.local_planner_env import LocalPlannerEnv
 
 
 def run_task(vv, log_dir=None, exp_name=None):

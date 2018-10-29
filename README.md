@@ -1,4 +1,4 @@
-# Car Simulation
+# Assured Autonomy - Simulation
 
 This module provides a simulation environment and training scripts for training an RWD vehicle modeled using a kinematic bicycle model with a tire dynamic model to move from one location to another while safely avoiding obstacles. Specifically, this module is tailored for use in an [rllab](https://github.com/rll/rllab) setting, which is a third-party library that we use to train our vehicle planner using deep reinforcement learning.
 
@@ -25,5 +25,7 @@ Clone this simulation repository inside rllab's root directory.
 Run scripts (such as any of the Python scripts in the directory ```scripts``` or ```train```) from the rllab's root directory, like so:
 
 ```
-python car_simulation/{train,scripts}/FILENAME.py
+python aa_simulation/{train,scripts}/FILENAME.py
 ```
+
+Arguments may need to be added to the command depending on the script.
