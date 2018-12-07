@@ -35,7 +35,7 @@ class VehicleEnv(Env):
         Initialize environment parameters.
         """
         # Instantiate vehicle model and interpret parameters
-        stream = open('aa_simulation/envs/model_params.yaml', 'r')
+        stream = open('envs/model_params.yaml', 'r')
         self._params = yaml.load(stream)
         self._model = VehicleModel(self._params)
         self._action = None
