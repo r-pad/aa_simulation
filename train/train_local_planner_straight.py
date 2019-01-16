@@ -56,7 +56,7 @@ def main():
     # Set up multiple experiments at once
     vg = VariantGenerator()
     vg.add('target_velocity', [0.7])
-    vg.add('seed', [100])
+    vg.add('seed', [np.random.randint(0,100000)])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant

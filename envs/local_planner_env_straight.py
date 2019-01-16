@@ -47,10 +47,10 @@ class LocalPlannerEnvStraight(VehicleEnv):
         """
         state = np.zeros(6)
         y = np.random.random() * 0.3 - 0.15
-        yaw = self._normalize_angle(np.deg2rad(180 * (np.random.random()) - 90))
-        x_dot = 2 * np.random.random() * self.target_velocity
-        y_dot = (3 * np.random.random() - 1.5) * self.target_velocity
-        yaw_dot = 6*np.random.random() - 3
+        yaw = self._normalize_angle(np.deg2rad(30 * (np.random.random()) - 15))
+        x_dot = np.random.random() * self.target_velocity
+        y_dot = (2 * np.random.random() - 1) * self.target_velocity
+        yaw_dot = np.random.random()
 
         state[1] = y
         state[2] = yaw
