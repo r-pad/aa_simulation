@@ -71,41 +71,13 @@ def modify_state_straight(state, move_param):
     x, y, yaw, x_dot, y_dot, dyaw = state
     target_dir = _normalize_angle2(target_dir)
 
-    #print("state", state[0], state[1])
     new_x, new_y = _cal_distance(x, y, move_param)
-    # print("original", yaw, target_dir)
     yaw = _normalize_angle(yaw) - target_dir
     yaw = _normalize_angle(yaw)
-    #print("new", yaw)
 
-    #print("dxdy", x_dot, y_dot)
-    # vel = np.sqrt(np.square(x_dot) + np.square(y_dot))
-
-    cur_dir = np.arctan2(y_dot, x_dot)
-    cur_dir = _normalize_angle2(cur_dir)
-    relative_dir = (cur_dir - target_dir)
-    # print("relative", np.rad2deg(_normalize_angle(relative_dir)))
-    # new_x_dot = vel * np.cos(relative_dir)
-    # new_y_dot = vel * np.sin(relative_dir)
-    # if new_x_dot < 0:
-    #     new_x_dot = np.absolute(new_x_dot)
-        # print(new_x_dot)
-        # dy_dot = - dy_dot
     new_x_dot = x_dot * np.cos(target_dir) + y_dot * np.sin(target_dir)
     new_y_dot = y_dot * np.cos(target_dir) - x_dot * np.sin(target_dir)
-    #print(new_x_dot)
-    # new_x_dot = y_dot
-    # new_y_dot = -x_dot
 
-    #print("dot", dx_dot, dy_dot)
-    #print("projection", [x, y, yaw, dx_dot, dy_dot, dyaw])
-    # 0(target direction) and 1(target velocity) depends
-    # on the pre-trained model's parameters.
-    # print(dyaw)
-    # print("old dyaw: ", dyaw)
-    # dyaw = dyaw * np.cos(relative_dir)
-    # dyaw -= target_dir
-    # print("new dyaw: ", dyaw)
     return np.array([new_y, yaw, new_x_dot, new_y_dot, dyaw])
 
 def _cal_distance(x, y, move_param):
@@ -200,7 +172,7 @@ def rollout(env, agent, way_point=[], animated=False, speedup=1,
         if animated:
             render(renderer, state, a)
             #env.render()
-            timestep = 0.05
+            timestep = 0.0001
             time.sleep(timestep / speedup)
     return state
 

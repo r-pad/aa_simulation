@@ -31,19 +31,11 @@ class LocalPlannerEnvStraight(VehicleEnv):
         """
         super(LocalPlannerEnvStraight, self).__init__(target_velocity)
 
-        # Parameters of the line to follow
-        # Always strating from (0, 0)
-        self.init_x = 0
-        self.init_y = 0
 
-        # Fixed target position, only used for reward calculation.
-        self.target_x = 1
-        self.target_y = 0
-        
     @property
     def observation_space(self):
         '''
-        Redefine the shape of input vector of NN.
+        Define the shape of input vector to the neural network.
         '''
         return Box(low=-np.inf, high=np.inf, shape=(5,))
 
@@ -53,29 +45,18 @@ class LocalPlannerEnvStraight(VehicleEnv):
         """
         Get initial state of car when simulation is reset.
         """
-        # Random initial position and yaw (from -90 to 90)
-        y = np.random.random() * 0.3 - 0.15
-        # For training, the model is always moving right, with direction 0.
-        # Random initial direction, +- 90 degrees initial direction error
-        self.init_dir = self._normalize_angle(np.deg2rad(180 * (np.random.random()) - 90))
-
-        # Random initial velocity:
-        # Able to sustain 0 - 3 times target velocity on x direction.
-        # Able to -2 - 2 times target velocity on y direction.
-        self.init_dx = 2 * np.random.random() * self.target_velocity
-        self.init_dy = (3 * np.random.random() - 1.5) * self.target_velocity
-
-        # Random initial dyaw. (small values only)
-        # dyaw = np.random.random() * 0.01 - 0.005
-        dyaw = 0
-        
-
         state = np.zeros(6)
+        y = np.random.random() * 0.3 - 0.15
+        yaw = self._normalize_angle(np.deg2rad(180 * (np.random.random()) - 90))
+        x_dot = 2 * np.random.random() * self.target_velocity
+        y_dot = (3 * np.random.random() - 1.5) * self.target_velocity
+        yaw_dot = 6*np.random.random() - 3
+
         state[1] = y
-        state[2] = self.init_dir
-        state[3] = self.init_dx
-        state[4] = self.init_dy
-        state[5] = dyaw
+        state[2] = yaw
+        state[3] = x_dot
+        state[4] = y_dot
+        state[5] = yaw_dot
         return state
 
 
@@ -101,42 +82,17 @@ class LocalPlannerEnvStraight(VehicleEnv):
             done = False
 
             # Trajectory following
-            x, y, _, dx, dy, _ = nextstate
-
-            # Relative weights.
-            lambda_vel = 0.2
-
-            # Velocity difference
-            velocity = np.sqrt(np.square(dx) + np.square(dy))
+            x, y, _, x_dot, y_dot, _ = nextstate
+            lambda1 = 0.2
+            velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
             vel_diff = velocity - self.target_velocity
-
-            # Position difference
-            distance = self._cal_distance(x, y)
-
+            distance = y
             reward = -np.absolute(distance)
-            reward -= lambda_vel * np.square(vel_diff)
+            reward -= lambda1 * np.square(vel_diff)
 
-        next_observation = self._modify_state(nextstate)        
+        next_observation = self._state_to_observation(nextstate)
         return Step(observation=next_observation, reward=reward,
                 done=done, dist=distance, vel=vel_diff)
-
-    def _cal_distance(self, x, y):
-        '''
-        Calculate the distance between current position
-        and target straight trajectory.
-        '''
-        # print(y)
-        return y
-
-    def _modify_state(self, state):
-        """
-        Add target direction and target velocity to state, to feed
-        in the NN.
-        """
-        x, y, yaw, dx, dy, dyaw = state
-        yaw = self._normalize_angle(yaw)
-        dyaw = self._normalize_angle(dyaw)
-        return np.array([y, yaw, dx, dy, dyaw])
 
 
     def reset(self):
@@ -145,13 +101,23 @@ class LocalPlannerEnvStraight(VehicleEnv):
         """
         self._action = None
         self._state = self.get_initial_state
-        observation = self._modify_state(self._state)
+        observation = self._state_to_observation(self._state)
 
         # Reset renderer if available
         if self._renderer is not None:
             self._renderer.reset()
 
         return observation
+
+
+    def _state_to_observation(self, state):
+        """
+        Prepare state to be read as input to neural network.
+        """
+        _, y, yaw, x_dot, y_dot, yaw_dot = state
+        yaw = self._normalize_angle(yaw)
+        return np.array([y, yaw, x_dot, y_dot, yaw_dot])
+
 
     def _normalize_angle(self, angle):
         """
