@@ -112,7 +112,7 @@ class CircleEnv(VehicleEnv):
         ddx = x/(x**2 + y**2)**0.5*x_dot + y/(x**2 + y**2)**0.5*y_dot
         dtheta = x/(x**2 + y**2)*x_dot - y/(x**2 + y**2)*y_dot - yaw_dot
 
-        #return np.array([dx/0.012, theta/0.067, ddx/-0.4139, dtheta/-0.6505])
+        # May want to rescale/normalize values to each other.
         return np.array([dx, theta, ddx, dtheta])
 
 

@@ -82,7 +82,7 @@ class StraightEnv(VehicleEnv):
 
             # Trajectory following
             x, y, _, x_dot, y_dot, _ = nextstate
-            lambda1 = 0.2
+            lambda1 = 0.25
             velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
             vel_diff = velocity - self.target_velocity
             distance = y

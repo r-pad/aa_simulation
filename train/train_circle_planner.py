@@ -3,8 +3,8 @@
 """
 @author: edwardahn
 
-Train local planner using TRPO so that a vehicle can follow a sequence
-of arbitrary curvatures.
+Train local planner using TRPO so that a vehicle can follow a circular
+trajectory with an arbitrary curvature.
 """
 
 import numpy as np
@@ -42,7 +42,7 @@ def run_task(vv, log_dir=None, exp_name=None):
         env=env,
         policy=policy,
         baseline=baseline,
-        batch_size=1000,
+        batch_size=500,
         max_path_length=env.horizon,
         n_itr=500,
         discount=0.99,
@@ -56,9 +56,9 @@ def main():
 
     # Set up multiple experiments at once
     vg = VariantGenerator()
-    vg.add('target_velocity', [0.7, 0.8, 0.9, 1.0])
+    vg.add('target_velocity', [0.7])
     vg.add('radius', [1.0])
-    vg.add('seed', [100, 200])
+    vg.add('seed', [100, 200, 300, 400])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant
