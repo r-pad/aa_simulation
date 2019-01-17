@@ -42,7 +42,7 @@ def run_task(vv, log_dir=None, exp_name=None):
         env=env,
         policy=policy,
         baseline=baseline,
-        batch_size=500,
+        batch_size=1000,
         max_path_length=env.horizon,
         n_itr=500,
         discount=0.99,

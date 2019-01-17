@@ -44,11 +44,18 @@ class StraightEnv(VehicleEnv):
         """
         Get initial state of car when simulation is reset.
         """
-        y = 0.3*np.random.random() - 0.15
-        yaw = np.deg2rad(30 * (np.random.random()) - 15)
-        x_dot = np.random.random() * self.target_velocity
-        y_dot = (2*np.random.random() - 1) * self.target_velocity
-        yaw_dot = 2*np.random.random() - 1
+        # Total margin of domain randomization for each variable
+        angle_margin = np.deg2rad(60)
+        position_margin = 0.5
+        velocity_margin = 1.5 * self.target_velocity
+        yaw_dot_margin = 2
+
+        # Compute domain randomized variables
+        y = position_margin * np.random.random() - position_margin/2
+        yaw = angle_margin * np.random.random() - angle_margin/2
+        x_dot = velocity_margin * np.random.random()
+        y_dot = velocity_margin * np.random.random() - velocity_margin/2
+        yaw_dot = yaw_dot_margin * np.random.random() - yaw_dot_margin/2
 
         state = np.zeros(6)
         state[1] = y

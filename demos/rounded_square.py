@@ -41,14 +41,12 @@ def modify_state_curve(state, move_param):
     x -= x_0
     y -= y_0
 
-    vel = np.sqrt(np.square(x_dot) + np.square(y_dot))
-
     dx = np.sqrt(np.square(x) + np.square(y)) - r
     theta = _normalize_angle(np.arctan2(-x, y) + np.pi - yaw)
     ddx = x/(x**2 + y**2)**0.5*x_dot + y/(x**2 + y**2)**0.5*y_dot
     dtheta = x/(x**2 + y**2)*x_dot - y/(x**2 + y**2)*y_dot - yaw_dot
 
-    return np.array([dx, theta, ddx, dtheta, vel, 1])
+    return np.array([dx, theta, ddx, dtheta])
 
 
 def _normalize_angle(angle):
@@ -234,7 +232,7 @@ def main():
     args = parse_arguments()
     profiler = cProfile.Profile()
 
-    data_curve = joblib.load("data/roundedsquare_demo/curve.pkl")
+    data_curve = joblib.load("data/roundedsquare_demo/circle.pkl")
     policy_curve = data_curve['policy']
     env_curve = data_curve['env']
 
