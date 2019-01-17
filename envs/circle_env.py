@@ -3,8 +3,8 @@
 """
 @author: edwardahn
 
-Environment for training local planner to follow arbitrary
-curvatures.
+Environment for training local planner to follow circles of
+arbitrary curvature.
 """
 
 import csv
@@ -17,7 +17,7 @@ from rllab.spaces import Box
 from aa_simulation.envs.base_env import VehicleEnv
 
 
-class LocalPlannerEnv(VehicleEnv):
+class CircleEnv(VehicleEnv):
     """
     Simulation environment for an RC car following a circular
     arc trajectory using relative coordinates.
@@ -27,7 +27,7 @@ class LocalPlannerEnv(VehicleEnv):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(LocalPlannerEnv, self).__init__(target_velocity)
+        super(CircleEnv, self).__init__(target_velocity)
 
         # Radius of trajectory to follow
         self.radius = radius

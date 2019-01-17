@@ -18,7 +18,7 @@ from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 
-from aa_simulation.envs.local_planner_env import LocalPlannerEnv
+from aa_simulation.envs.circle_env import CircleEnv
 
 
 def run_task(vv, log_dir=None, exp_name=None):
@@ -26,7 +26,7 @@ def run_task(vv, log_dir=None, exp_name=None):
     # Load environment
     radius = vv['radius']
     target_velocity = vv['target_velocity']
-    env = normalize(LocalPlannerEnv(radius, target_velocity))
+    env = normalize(CircleEnv(radius, target_velocity))
 
     # Save variant information for comparison plots
     variant_file = logger.get_snapshot_dir() + '/variant.json'
