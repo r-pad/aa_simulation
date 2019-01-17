@@ -1,10 +1,10 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-@author: Jiyuan Zhou
+@author: Edward Ahn
 
-Train local planner using TRPO so that a vehicle can follow a sequence
-of arbitrary curvatures.
+Train local planner using TRPO so that a vehicle can follow a
+straight line.
 """
 
 import numpy as np
@@ -18,14 +18,14 @@ from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 
-from aa_simulation.envs.local_planner_env_straight import LocalPlannerEnvStraight
+from aa_simulation.envs.straight_env import StraightEnv
 
 
 def run_task(vv, log_dir=None, exp_name=None):
 
     # Load environment
     target_velocity = vv['target_velocity']
-    env = normalize(LocalPlannerEnvStraight(target_velocity))
+    env = normalize(StraightEnv(target_velocity))
 
     # Save variant information for comparison plots
     variant_file = logger.get_snapshot_dir() + '/variant.json'

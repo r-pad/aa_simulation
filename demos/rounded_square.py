@@ -3,27 +3,32 @@
 """
 @author: Jiyuan Zhou
 
-Enable an agent follows a hard coded trajectory.
+Enable an agent to follow a hard coded trajectory in the form of
+a square with rounded corners using trained straight and circle models.
 """
 import argparse
 import cProfile
 import pstats
 import sys
+import time
 import math
 import yaml
 
 import joblib
 import matplotlib.pyplot as plt
 import numpy as np
+
 from rllab.misc import tensor_utils
-import time
+
 from aa_simulation.envs.renderer import _Renderer
+
 
 def render(renderer, state, action):
     """
     Render simulation environment.
     """
     renderer.update(state, action)
+
 
 def modify_state_curve(state, move_param):
     """
@@ -33,18 +38,18 @@ def modify_state_curve(state, move_param):
     x_0, y_0, r = move_param
     x, y, yaw, x_dot, y_dot, yaw_dot = state
 
-    vel = np.sqrt(np.square(x_dot) + np.square(y_dot))
-
     x -= x_0
     y -= y_0
-    # print(x, y)
+
+    vel = np.sqrt(np.square(x_dot) + np.square(y_dot))
+
     dx = np.sqrt(np.square(x) + np.square(y)) - r
     theta = _normalize_angle(np.arctan2(-x, y) + np.pi - yaw)
     ddx = x/(x**2 + y**2)**0.5*x_dot + y/(x**2 + y**2)**0.5*y_dot
     dtheta = x/(x**2 + y**2)*x_dot - y/(x**2 + y**2)*y_dot - yaw_dot
 
-    #return np.array([dx/0.012, theta/0.067, ddx/-0.4139, dtheta/-0.6505])
     return np.array([dx, theta, ddx, dtheta, vel, 1])
+
 
 def _normalize_angle(angle):
     """
@@ -55,12 +60,14 @@ def _normalize_angle(angle):
         angle -= 2*np.pi
     return angle
 
+
 def _normalize_angle2(angle):
     """
     Normalize angle to [0, 2 * pi).
     """
     angle = angle % (2*np.pi)
     return angle
+
 
 def modify_state_straight(state, move_param):
     """
@@ -79,6 +86,7 @@ def modify_state_straight(state, move_param):
     new_y_dot = y_dot * np.cos(target_dir) - x_dot * np.sin(target_dir)
 
     return np.array([new_y, yaw, new_x_dot, new_y_dot, dyaw])
+
 
 def _cal_distance(x, y, move_param):
     # For arbitrary trajectory.
@@ -113,6 +121,7 @@ def _cal_distance(x, y, move_param):
 
     return (new_x, new_y)
 
+
 def _check_point(state, way_point):
     # Potential bug!!! Can only follow a curve that is less than
     # 180 degrees! must be deal with in the hard coded trajectory
@@ -127,6 +136,7 @@ def _check_point(state, way_point):
 
     return np.absolute(intersect_angle) <= math.pi / 2
     # return True
+
 
 def rollout(env, agent, way_point=[], animated=False, speedup=1,
             always_return_paths=False, renderer=None, state=np.zeros(6),
@@ -176,6 +186,7 @@ def rollout(env, agent, way_point=[], animated=False, speedup=1,
             time.sleep(timestep / speedup)
     return state
 
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--speedup', type=float, default=100000,
@@ -188,6 +199,7 @@ def parse_arguments():
     args = parser.parse_args()
     return args
 
+
 def move(env, policy, args, way_point, renderer,\
          state, isCurve, move_param):
     final_state = rollout(env, policy, way_point=way_point,
@@ -197,12 +209,14 @@ def move(env, policy, args, way_point, renderer,\
                         move_param=move_param)
     return final_state
 
+
 def init_render():
     stream = open('aa_simulation/envs/model_params.yaml', 'r')
     params = yaml.load(stream)
     obstacles = []
     goal = None
     return _Renderer(params, obstacles, goal, None)
+
 
 def _check_curve_way_point(curve_param, way_point):
     center_x, center_y, curve_angle = curve_param
@@ -277,6 +291,7 @@ def main():
     # Block until key is pressed
     sys.stdout.write("Press <enter> to continue: ")
     input()
+
 
 if __name__ == '__main__':
     main()

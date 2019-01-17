@@ -1,9 +1,9 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-@author: Jiyuan Zhou
+@author: Edward Ahn
 
-Environment for training local planner to move on a straight way.
+Environment for training a local planner to move in a straight line.
 """
 
 import csv
@@ -17,19 +17,18 @@ from rllab.spaces import Box
 from aa_simulation.envs.base_env import VehicleEnv
 
 
-class LocalPlannerEnvStraight(VehicleEnv):
+class StraightEnv(VehicleEnv):
     """
     Simulation environment for an RC car following a straight
-    line trajectory using relative coordinates.
-    The straight line trajectory starts from point [0, 0], and its
-    direction is always right, namely yaw is 0.
+    line trajectory. The reward function encourages the agent to
+    move right on the line y=0 for all time.
     """
 
     def __init__(self, target_velocity):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(LocalPlannerEnvStraight, self).__init__(target_velocity)
+        super(StraightEnv, self).__init__(target_velocity)
 
 
     @property
@@ -45,13 +44,13 @@ class LocalPlannerEnvStraight(VehicleEnv):
         """
         Get initial state of car when simulation is reset.
         """
-        state = np.zeros(6)
-        y = np.random.random() * 0.3 - 0.15
-        yaw = self._normalize_angle(np.deg2rad(30 * (np.random.random()) - 15))
+        y = 0.3*np.random.random() - 0.15
+        yaw = np.deg2rad(30 * (np.random.random()) - 15)
         x_dot = np.random.random() * self.target_velocity
-        y_dot = (2 * np.random.random() - 1) * self.target_velocity
-        yaw_dot = np.random.random()
+        y_dot = (2*np.random.random() - 1) * self.target_velocity
+        yaw_dot = 2*np.random.random() - 1
 
+        state = np.zeros(6)
         state[1] = y
         state[2] = yaw
         state[3] = x_dot
