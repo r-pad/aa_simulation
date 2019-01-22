@@ -62,7 +62,6 @@ def main():
     vg.add('seed', seeds)
     print('Number of Configurations: ', len(vg.variants()))
 
-    raise NotImplementedError
     # Run each experiment variant
     for vv in vg.variants():
         run_experiment_lite(
