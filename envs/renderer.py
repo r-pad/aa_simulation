@@ -47,11 +47,7 @@ class _Renderer(object):
             self._ax.set_ylim(-2, 4)
 
         # Show ideal trajectory
-        if env_type == 'StraightEnv':
-            line = plt.Line2D([0, goal[0]], [0, goal[1]],
-                    color='c', ls=':')
-            self._ax.add_line(line)
-        elif env_type == 'ArcEnv':
+        if env_type == 'ArcEnv':
             arc = patches.Arc((goal[0]/2, 0), goal[0], goal[0],
                     0, 180, 360, color='c', ls=':')
             self._ax.add_patch(arc)
