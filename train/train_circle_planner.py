@@ -42,9 +42,9 @@ def run_task(vv, log_dir=None, exp_name=None):
         env=env,
         policy=policy,
         baseline=baseline,
-        batch_size=1000,
+        batch_size=600,
         max_path_length=env.horizon,
-        n_itr=500,
+        n_itr=1000,
         discount=0.99,
         step_size=0.01,
         plot=False,
@@ -56,17 +56,19 @@ def main():
 
     # Set up multiple experiments at once
     vg = VariantGenerator()
+    seeds = [100, 200, 300, 400]
     vg.add('target_velocity', [0.7])
     vg.add('radius', [1.0])
-    vg.add('seed', [100, 200, 300, 400])
+    vg.add('seed', seeds)
     print('Number of Configurations: ', len(vg.variants()))
 
+    raise NotImplementedError
     # Run each experiment variant
     for vv in vg.variants():
         run_experiment_lite(
             stub_method_call=run_task,
             variant=vv,
-            n_parallel=1,
+            n_parallel=len(seeds),
             snapshot_mode='last',
             seed=vv['seed']
         )
