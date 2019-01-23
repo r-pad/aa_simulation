@@ -15,6 +15,7 @@ from rllab.envs.base import Step
 from rllab.spaces import Box
 
 from aa_simulation.envs.base_env import VehicleEnv
+from aa_simulation.misc.utils import normalize_angle
 
 
 class CircleEnv(VehicleEnv):
@@ -123,20 +124,10 @@ class CircleEnv(VehicleEnv):
         x, y, yaw, x_dot, y_dot, yaw_dot = state
 
         dx = np.sqrt(np.square(x) + np.square(y)) - r
-        theta = self._normalize_angle(np.arctan2(-x, y) + np.pi - yaw)
+        theta = normalize_angle(np.arctan2(-x, y) + np.pi - yaw)
         ddx = x/(x**2 + y**2)**0.5*x_dot + y/(x**2 + y**2)**0.5*y_dot
         dtheta = x/(x**2 + y**2)*x_dot - y/(x**2 + y**2)*y_dot - yaw_dot
 
         # May want to rescale/normalize values to each other.
         return np.array([dx, theta, ddx, dtheta])
-
-
-    def _normalize_angle(self, angle):
-        """
-        Normalize angle to [-pi, pi).
-        """
-        angle = angle % (2*np.pi)
-        if (angle > np.pi):
-            angle -= 2*np.pi
-        return angle
 
