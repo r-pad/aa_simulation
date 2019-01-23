@@ -15,6 +15,7 @@ from rllab.envs.base import Step
 from rllab.spaces import Box
 
 from aa_simulation.envs.base_env import VehicleEnv
+from aa_simulation.misc.utils import normalize_angle
 
 
 class StraightEnv(VehicleEnv):
@@ -33,9 +34,9 @@ class StraightEnv(VehicleEnv):
 
     @property
     def observation_space(self):
-        '''
+        """
         Define the shape of input vector to the neural network.
-        '''
+        """
         return Box(low=-np.inf, high=np.inf, shape=(5,))
 
 
@@ -113,20 +114,39 @@ class StraightEnv(VehicleEnv):
         return observation
 
 
+    @staticmethod
+    def project_line(state, x0, y0, angle):
+        """
+        Note that this policy is trained to follow a straight line
+        to the right (y = 0). To follow an arbitrary line, use this
+        function to transform the current absolute state to a form
+        that makes the policy believe the car is moving to the right.
+
+        :param state: Current absolute state of robot
+        :param x0: x-value of start of line to follow
+        :param y0: y-value of start of line to follow
+        :param angle: Angle of line to follow
+        """
+        x, y, yaw, x_dot, y_dot, yaw_dot = state
+        angle = normalize_angle(angle)
+
+        current_angle = np.arctan2((y - y0), (x - x0))
+        projected_angle = normalize_angle(current_angle - angle)
+        dist = np.sqrt(np.square(x - x0) + np.square(y - y0))
+
+        new_y = dist * np.sin(projected_angle)
+        new_yaw = normalize_angle(yaw - angle)
+        new_x_dot = x_dot * np.cos(angle) + y_dot * np.sin(angle)
+        new_y_dot = -x_dot * np.sin(angle) + y_dot * np.cos(angle)
+
+        return np.array([new_y, new_yaw, new_x_dot, new_y_dot, yaw_dot])
+
+
     def _state_to_observation(self, state):
         """
         Prepare state to be read as input to neural network.
         """
         _, y, yaw, x_dot, y_dot, yaw_dot = state
-        yaw = self._normalize_angle(yaw)
+        yaw = normalize_angle(yaw)
         return np.array([y, yaw, x_dot, y_dot, yaw_dot])
 
-
-    def _normalize_angle(self, angle):
-        """
-        Normalize angle to [-pi, pi).
-        """
-        angle = angle % (2*np.pi)
-        if (angle >= np.pi):
-            angle -= 2*np.pi
-        return angle
