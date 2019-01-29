@@ -12,6 +12,8 @@ at https://github.com/jsford/FFAST.
 import numpy as np
 from scipy.integrate import solve_ivp
 
+from aa_simulation.misc.utils import normalize_angle
+
 
 class VehicleModel(object):
     """
@@ -43,17 +45,18 @@ class VehicleModel(object):
         self.stiction_velocity = 0.8
 
 
-    def state_transition(self, X, U, dt):
+    def state_transition(self, X, U, dt, target_angle=0):
         """
         Update state after some timestep.
         """
         t = np.array([0, dt])
-        X_new = solve_ivp(lambda t, X: self._dynamics(X, t, U), t, X,
-                atol=1e-5)
+        X_new = solve_ivp(
+            fun=(lambda t, X: self._dynamics(X, t, U, target_angle)),
+            t_span=t, y0=X, atol=1e-5)
         return X_new.y[:,-1]
 
 
-    def _dynamics(self, X, t, U):
+    def _dynamics(self, X, t, U, target_angle):
         """
         Use dynamics model to compute X_dot from X, U.
         """
@@ -98,8 +101,10 @@ class VehicleModel(object):
         X_dot[0] = pos_x_dot
         X_dot[1] = pos_y_dot
         X_dot[2] = yaw_rate
-        X_dot[3] = v_x_dot
-        X_dot[4] = v_y_dot
+        X_dot[3] = v_x_dot * np.cos(target_angle-pos_yaw) \
+                - v_y_dot * np.sin(target_angle-pos_yaw)
+        X_dot[4] = v_x_dot * np.sin(target_angle-pos_yaw) \
+                + v_y_dot * np.cos(target_angle-pos_yaw)
         X_dot[5] = yaw_rate_dot
 
         return X_dot

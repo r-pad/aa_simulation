@@ -30,6 +30,7 @@ class StraightEnv(VehicleEnv):
         Initialize super class parameters, obstacles and radius.
         """
         super(StraightEnv, self).__init__(target_velocity)
+        self._target_angle = 0
 
 
     @property
@@ -71,7 +72,7 @@ class StraightEnv(VehicleEnv):
         # Get next state from dynamics equations
         self._action = action
         nextstate = self._model.state_transition(self._state, action,
-                self._dt)
+                self._dt, self._target_angle)
 
         # Check collision and assign reward to transition
         collision = self._check_collision(nextstate)
