@@ -45,18 +45,18 @@ class VehicleModel(object):
         self.stiction_velocity = 0.8
 
 
-    def state_transition(self, X, U, dt, target_angle=0):
+    def state_transition(self, X, U, dt):
         """
         Update state after some timestep.
         """
         t = np.array([0, dt])
         X_new = solve_ivp(
-            fun=(lambda t, X: self._dynamics(X, t, U, target_angle)),
+            fun=(lambda t, X: self._dynamics(X, t, U)),
             t_span=t, y0=X, atol=1e-5)
         return X_new.y[:,-1]
 
 
-    def _dynamics(self, X, t, U, target_angle):
+    def _dynamics(self, X, t, U):
         """
         Use dynamics model to compute X_dot from X, U.
         """

@@ -122,7 +122,6 @@ def rollout(env, agent, way_point=[], animated=False, speedup=1,
         if isCurve:
             o = modify_state_curve(state, move_param)
         else:
-            env._wrapped_env._target_angle = move_param[2]
             o = modify_state_straight(state, move_param)
 
         _, agent_info = agent.get_action(o)
