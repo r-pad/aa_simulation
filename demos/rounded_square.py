@@ -6,6 +6,7 @@
 Enable an agent to follow a hard coded trajectory in the form of
 a square with rounded corners using trained straight and circle models.
 """
+
 import argparse
 import cProfile
 import pstats
@@ -21,6 +22,7 @@ import numpy as np
 from rllab.misc import tensor_utils
 
 from aa_simulation.envs.renderer import _Renderer
+from aa_simulation.envs.straight_env import StraightEnv
 
 
 def render(renderer, state, action):
@@ -73,57 +75,24 @@ def modify_state_straight(state, move_param):
     in the NN.
     """
     x_0, y_0, target_dir = move_param
-    x, y, yaw, x_dot, y_dot, dyaw = state
-    target_dir = _normalize_angle2(target_dir)
-
-    new_x, new_y = _cal_distance(x, y, move_param)
-    yaw = _normalize_angle(yaw) - target_dir
-    yaw = _normalize_angle(yaw)
-
-    new_x_dot = x_dot * np.cos(target_dir) + y_dot * np.sin(target_dir)
-    new_y_dot = y_dot * np.cos(target_dir) - x_dot * np.sin(target_dir)
-
-    return np.array([new_y, yaw, new_x_dot, new_y_dot, dyaw])
+    return StraightEnv.project_line(state, x_0, y_0, target_dir)[1:]
 
 
 def _cal_distance(x, y, move_param):
-    # For arbitrary trajectory.
+
     init_x, init_y, target_dir = move_param
-
-    # if _normalize_angle(target_dir) == math.pi / 2:
-    #     next_x, next_y = init_x, init_y + 1
-    #     print(1)
-    #     return(0, - x + init_x)
-    # elif _normalize_angle(target_dir) == -math.pi / 2:
-    #     next_x, next_y = init_x, init_y - 1
-    #     return(0, x - init_x)
-    # else:
-    #     next_x, next_y = init_x + 1, init_y + np.tan(target_dir)
-
-    #print("x,y", x, y, init_x, init_y)
     position_dir = np.arctan2((y - init_y), (x - init_x))
     projection_dir = _normalize_angle(position_dir - target_dir)
-    #print("yaws", position_dir, target_dir, projection_dir)
+
     dist = np.sqrt(np.square(x - init_x) + np.square(y - init_y))
-    # new_y = np.absolute((next_y - init_y) * init_x + (init_x - next_x) * init_y\
-    #              - init_x * next_y + next_x * init_y) / \
-    #                 np.sqrt(np.square(next_y - init_y) + np.square(next_x - init_x))
 
     new_y = dist * np.sin(projection_dir)
-    # new_x = dist * np.cos(projection_dir)
     new_x = 0
-    # new_y = (y - init_y) * np.cos(target_dir) - (x - init_x) * np.sin(target_dir)
-    #print("new y: ", new_y)
-    # if (np.sin(projection_dir < 0)):
-    #     new_y = new_y
 
     return (new_x, new_y)
 
 
 def _check_point(state, way_point):
-    # Potential bug!!! Can only follow a curve that is less than
-    # 180 degrees! must be deal with in the hard coded trajectory
-    # or higher level planner for the time being.
     x, y, _, _, _, _ = state
     check_point_x, check_point_y, direction = way_point
     direction = np.deg2rad(direction)
@@ -133,7 +102,6 @@ def _check_point(state, way_point):
     intersect_angle = _normalize_angle(state_direction - direction)
 
     return np.absolute(intersect_angle) <= math.pi / 2
-    # return True
 
 
 def rollout(env, agent, way_point=[], animated=False, speedup=1,
@@ -147,21 +115,19 @@ def rollout(env, agent, way_point=[], animated=False, speedup=1,
 
     path_length = 0
 
-    # update initial state!!!
-    # Bad implementation. Just temporary.
     env._wrapped_env._state = state
 
     while _check_point(state, way_point):
-        # print("State: ", state)
-        # State observation convertion
+
         if isCurve:
             o = modify_state_curve(state, move_param)
         else:
+            env._wrapped_env._target_angle = move_param[2]
             o = modify_state_straight(state, move_param)
-        #
-        a, agent_info = agent.get_action(o)
+
+        _, agent_info = agent.get_action(o)
+        a = agent_info['mean']
         next_o, r, d, env_info = env.step(a)
-        #
 
         observations.append(env.observation_space.flatten(o))
         rewards.append(r)
@@ -174,12 +140,11 @@ def rollout(env, agent, way_point=[], animated=False, speedup=1,
             break
 
         o = next_o
-        # Bad implementation. Just temporary.
+
         state = env._wrapped_env._state
 
         if animated:
             render(renderer, state, a)
-            #env.render()
             timestep = 0.0001
             time.sleep(timestep / speedup)
     return state
@@ -216,18 +181,6 @@ def init_render():
     return _Renderer(params, obstacles, goal, None)
 
 
-def _check_curve_way_point(curve_param, way_point):
-    center_x, center_y, curve_angle = curve_param
-    curve_angle = _normalize_angle(curve_angle)
-
-    if curve_angle <= math.pi / 2:
-        return curve_param, way_point
-
-    check_point_x, check_point_y, direction = way_point
-
-    # Construct new way point
-
-
 def main():
     args = parse_arguments()
     profiler = cProfile.Profile()
@@ -251,6 +204,7 @@ def main():
     renderer = init_render()
 
     state = [-1, 0, np.deg2rad(-90), 0, 0, 0]
+    #state = [3,0,np.deg2rad(90), 0, 0, 0]
     render(renderer, state, None)
 
     # center positin x, center position y, radius
@@ -258,10 +212,8 @@ def main():
     # start position x, start position y, target start yaw(direction)
     straight_params = [[0, -1, np.deg2rad(0)], [3, 0, np.deg2rad(90)],\
              [2, 3, np.deg2rad(-180)], [-1, 2, np.deg2rad(-90)]]
-    # curve_step_size = [43, 44, 44, 44]
-    # straight_step_size = [54, 55, 55, 56]
 
-    way_points = [[0, -1, 180], [2, -1, 180], [3, 0, -90], [3, 2, -90],\
+    way_points = [[0, -1, 180], [2, -1, 180], [3, 0, -90], [3, 2,-90],\
                     [2, 3, 0], [0, 3, 0], [-1, 2, 90], [-1, 0, 90]]
 
     point = 0
