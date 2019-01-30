@@ -101,10 +101,7 @@ class VehicleModel(object):
         X_dot[0] = pos_x_dot
         X_dot[1] = pos_y_dot
         X_dot[2] = yaw_rate
-        X_dot[3] = v_x_dot #* np.cos(pos_yaw) \
-                #- v_y_dot * np.cos(np.pi/2-pos_yaw)
-        #X_dot[4] = v_x_dot * np.sin(pos_yaw) \
-                #+ v_y_dot * np.sin(np.pi/2-pos_yaw)
+        X_dot[3] = v_x_dot
         X_dot[4] = v_y_dot
         X_dot[5] = yaw_rate_dot
 

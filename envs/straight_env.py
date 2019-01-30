@@ -138,11 +138,8 @@ class StraightEnv(VehicleEnv):
         new_x = dist * np.cos(projected_angle)
         new_y = dist * np.sin(projected_angle)
         new_yaw = normalize_angle(yaw - angle)
-        new_x_dot = x_dot * np.cos(angle) + y_dot * np.sin(angle)
-        new_y_dot = -x_dot * np.sin(angle) + y_dot * np.cos(angle)
 
-        return np.array([new_x, new_y, new_yaw, new_x_dot,
-            new_y_dot, yaw_dot])
+        return np.array([new_x, new_y, new_yaw, x_dot, y_dot, yaw_dot])
 
 
     def _state_to_observation(self, state):
