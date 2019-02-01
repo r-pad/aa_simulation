@@ -95,7 +95,6 @@ def _cal_distance(x, y, move_param):
 def _check_point(state, way_point):
     x, y, _, _, _, _ = state
     check_point_x, check_point_y, direction = way_point
-    direction = np.deg2rad(direction)
 
     state_direction = np.arctan2((y - check_point_y), (x - check_point_x))
 
@@ -200,20 +199,20 @@ def main():
     # Sample one rollout
     profiler.enable()
 
+    # Define initial state
     renderer = init_render()
-
     state = [-1, 0, np.deg2rad(-90), 0, 0, 0]
-    #state = [3,0,np.deg2rad(90), 0, 0, 0]
     render(renderer, state, None)
 
-    # center positin x, center position y, radius
-    curve_params = [[0, 0, 1], [2, 0, 1], [2, 2, 1], [0, 2, 1]]
-    # start position x, start position y, target start yaw(direction)
-    straight_params = [[0, -1, np.deg2rad(0)], [3, 0, np.deg2rad(90)],\
-             [2, 3, np.deg2rad(-180)], [-1, 2, np.deg2rad(-90)]]
-
-    way_points = [[0, -1, 180], [2, -1, 180], [3, 0, -90], [3, 2,-90],\
-                    [2, 3, 0], [0, 3, 0], [-1, 2, 90], [-1, 0, 90]]
+    way_points = [
+            [0,-1,np.pi], [2,-1,np.pi],
+            [3,0,-np.pi/2], [3,2,-np.pi/2],
+            [2,3,0], [0,3,0], [-1,2,np.pi/2], [-1,0,np.pi/2]]
+    curve_params = [
+            [0,0,1], [2,0,1], [2,2,1], [0,2,1]]
+    straight_params = [
+            [0,-1,0], [3,0,np.pi/2],
+            [2,3,-np.pi], [-1,2,-np.pi/2]]
 
     point = 0
     for i in range(400):
