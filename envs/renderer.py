@@ -43,8 +43,8 @@ class _Renderer(object):
             self._ax.set_xlim(-2.5, 2.5)
             self._ax.set_ylim(-2.5, 2.5)
         else:
-            self._ax.set_xlim(-2, 6)
-            self._ax.set_ylim(-2, 4)
+            self._ax.set_xlim(-2, 3)
+            self._ax.set_ylim(-1, 4)
 
         # Show ideal trajectory
         if env_type == 'ArcEnv':

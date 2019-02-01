@@ -201,18 +201,18 @@ def main():
 
     # Define initial state
     renderer = init_render()
-    state = [-1, 0, np.deg2rad(-90), 0, 0, 0]
+    state = [0, 0, 0, 0, 0, 0]
     render(renderer, state, None)
 
     way_points = [
-            [0,-1,np.pi], [2,-1,np.pi],
-            [3,0,-np.pi/2], [3,2,-np.pi/2],
-            [2,3,0], [0,3,0], [-1,2,np.pi/2], [-1,0,np.pi/2]]
+            [0,0,np.pi], [1,0,np.pi],
+            [2,1,-np.pi/2], [2,2,-np.pi/2],
+            [1,3,0], [0,3,0], [-1,2,np.pi/2], [-1,1,np.pi/2]]
     curve_params = [
-            [0,0,1], [2,0,1], [2,2,1], [0,2,1]]
+            [0,1,1], [1,1,1], [1,2,1], [0,2,1]]
     straight_params = [
-            [0,-1,0], [3,0,np.pi/2],
-            [2,3,-np.pi], [-1,2,-np.pi/2]]
+            [0,0,0], [2,1,np.pi/2],
+            [1,3,-np.pi], [-1,2,-np.pi/2]]
 
     point = 0
     for i in range(400):
