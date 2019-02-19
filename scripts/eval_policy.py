@@ -80,6 +80,8 @@ def parse_arguments():
                         help='Max length of rollout')
     parser.add_argument('--speedup', type=float, default=100000,
                         help='Speedup')
+    parser.add_argument('--skip', type=int, default=0,
+                        help='Number of iterations to skip at start')
     parser.add_argument('--render', dest='render',
             action='store_true', help='Rendering')
     parser.add_argument('--no-render', dest='render',
@@ -93,6 +95,7 @@ def main():
     args = parse_arguments()
     profiler = cProfile.Profile()
     data = joblib.load(args.file)
+    skip = args.skip
     policy = data['policy']
     env = data['env']
     plt.ion()
@@ -109,10 +112,10 @@ def main():
 
     # Policy analysis
     profile_code(profiler)
-    plot_curve(path['env_infos']['dist'], 'Distance', 'm')
-    plot_curve(path['env_infos']['vel'], 'Velocity', 'm/s')
-    plot_distribution(path['env_infos']['dist'], 'Distance', 'm')
-    plot_distribution(path['env_infos']['vel'], 'Velocity', 'm/s')
+    plot_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
+    plot_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
+    plot_distribution(path['env_infos']['dist'][skip:], 'Distance', 'm')
+    plot_distribution(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
 
     # Block until key is pressed
     sys.stdout.write("Press <enter> to continue: ")
