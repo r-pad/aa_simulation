@@ -17,6 +17,8 @@ import numpy as np
 
 from rllab.sampler.utils import rollout
 
+from aa_simulation.envs.base_env import VehicleEnv
+
 
 def profile_code(profiler):
     """
@@ -28,7 +30,22 @@ def profile_code(profiler):
     ps.print_stats(10)
 
 
-def plot_curve(error, name, units):
+def plot_curve(data, name, units):
+    """
+    Plot data over time.
+    """
+    title = '%s over Time in Final Policy' % name
+
+    plt.figure()
+    t = np.arange(data.size)
+    plt.plot(t, data)
+    plt.title(title)
+    plt.xlabel('Time steps')
+    plt.ylabel('%s (%s)' % (name, units))
+    plt.show()
+
+
+def plot_error_curve(error, name, units):
     """
     Plot error over time.
     """
@@ -72,6 +89,21 @@ def plot_distribution(error, name, units):
     plt.show()
 
 
+def rescale_actions(actions):
+    vel_lb = VehicleEnv._MIN_VELOCITY
+    vel_ub = VehicleEnv._MAX_VELOCITY
+    steer_lb = -VehicleEnv._MAX_STEER_ANGLE
+    steer_ub = VehicleEnv._MAX_STEER_ANGLE
+    lb = np.array([vel_lb, steer_lb])
+    ub = np.array([vel_ub, steer_ub])
+    scaled_actions = []
+    for i, action in enumerate(actions):
+        scaled_action = lb + (action + 1.) * 0.5 * (ub - lb)
+        scaled_action = np.clip(action, lb, ub)
+        scaled_actions.append(scaled_action)
+    return np.array(scaled_actions)
+
+
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('file', type=str,
@@ -112,8 +144,13 @@ def main():
 
     # Policy analysis
     profile_code(profiler)
-    plot_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
-    plot_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
+    print(path['actions'][:10,:])
+    actions = rescale_actions(path['actions'])
+    print(actions[:10,:])
+    plot_curve(actions[:, 0][skip:], 'Commanded Speed', 'm/s')
+    plot_curve(actions[:, 1][skip:], 'Commanded Steering Angle', 'rad')
+    plot_error_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
+    plot_error_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
     plot_distribution(path['env_infos']['dist'][skip:], 'Distance', 'm')
     plot_distribution(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
 
