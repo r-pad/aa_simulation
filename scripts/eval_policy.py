@@ -34,6 +34,12 @@ def plot_curve(data, name, units):
     """
     Plot data over time.
     """
+    mean = data.mean()
+    std = data.std()
+    maximum = data.max()
+    minimum = data.min()
+    stats = 'Mean = %.5f\nStd = %.5f\nMax = %.5f\nMin = %.5f' % \
+            (mean, std, maximum, minimum)
     title = '%s over Time in Final Policy' % name
 
     plt.figure()
@@ -42,6 +48,11 @@ def plot_curve(data, name, units):
     plt.title(title)
     plt.xlabel('Time steps')
     plt.ylabel('%s (%s)' % (name, units))
+    plt.axhline(mean, color='k', linestyle='dashed', linewidth=1)
+    plt.axhline(mean+std, color='r', linestyle='dashed', linewidth=1)
+    plt.axhline(mean-std, color='r', linestyle='dashed', linewidth=1)
+    plt.text(0.87, 0.9, stats, ha='center', va='center',
+            transform=plt.gca().transAxes)
     plt.show()
 
 
@@ -58,7 +69,7 @@ def plot_error_curve(error, name, units):
     plt.xlabel('Time steps')
     plt.ylabel('Error (%s)' % units)
     if name == 'Distance':
-        plt.gca().set_ylim((-0.01, 0.01))
+        plt.gca().set_ylim((-0.25, 0.25))
     else:
         plt.gca().set_ylim((-0.7, 0.7))
     plt.show()
@@ -144,9 +155,7 @@ def main():
 
     # Policy analysis
     profile_code(profiler)
-    print(path['actions'][:10,:])
     actions = rescale_actions(path['actions'])
-    print(actions[:10,:])
     plot_curve(actions[:, 0][skip:], 'Commanded Speed', 'm/s')
     plot_curve(actions[:, 1][skip:], 'Commanded Steering Angle', 'rad')
     plot_error_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
