@@ -110,7 +110,7 @@ def rescale_actions(actions):
     scaled_actions = []
     for i, action in enumerate(actions):
         scaled_action = lb + (action + 1.) * 0.5 * (ub - lb)
-        scaled_action = np.clip(action, lb, ub)
+        scaled_action = np.clip(scaled_action, lb, ub)
         scaled_actions.append(scaled_action)
     return np.array(scaled_actions)
 
