@@ -44,24 +44,19 @@ class CircleEnv(VehicleEnv):
         """
         Get initial state of car when simulation is reset.
         """
-        # Total margin of domain randomization for each variable
-        angle_margin = np.deg2rad(60)
-        position_margin = 0.5
-        velocity_margin = 1.5 * self.target_velocity
-
         # Compute domain randomized variables
-        x = position_margin * np.random.random() - position_margin/2
-        x -= self.radius
-        yaw = angle_margin * np.random.random() - angle_margin/2
-        yaw += np.deg2rad(270)
-        x_dot = velocity_margin * np.random.random() - velocity_margin/2
-        y_dot = -velocity_margin * np.random.random()
+        x = np.random.uniform(-0.25, 0.25) - self.radius
+        yaw = np.random.uniform(-np.pi/3, np.pi/3) + np.deg2rad(270)
+        x_dot = np.random.uniform(0, 1.3)
+        y_dot = np.random.uniform(-0.6, 0.6)
+        yaw_dot = np.random.uniform(-2.0, 2.0)
 
         state = np.zeros(6)
         state[0] = x
         state[2] = yaw
         state[3] = x_dot
         state[4] = y_dot
+        state[5] = yaw_dot
         return state
 
 
