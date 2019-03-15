@@ -68,6 +68,7 @@ class CircleEnv(VehicleEnv):
         self._action = action
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)
+        next_observation = self._state_to_relative(nextstate)
 
         # Check collision and assign reward to transition
         collision = self._check_collision(nextstate)
@@ -83,14 +84,16 @@ class CircleEnv(VehicleEnv):
             # Trajectory following
             r = self.radius
             x, y, _, x_dot, y_dot, _ = nextstate
+            dx, dth, dx_dot, dth_dot = next_observation
             lambda1 = 0.25
+            lambda2 = 0.25
             velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
             vel_diff = velocity - self.target_velocity
-            distance = r-np.sqrt(np.square(x)+np.square(y))
+            distance = r - np.sqrt(np.square(x)+np.square(y))
             reward = -np.abs(distance)
-            reward -= lambda1 * np.square(vel_diff)
+            reward -= lambda1 * vel_diff**2
+            reward -= lambda2 * max(0, abs(dth) - np.pi/2)**2
 
-        next_observation = self._state_to_relative(nextstate)
         return Step(observation=next_observation, reward=reward,
                 done=done, dist=distance, vel=vel_diff)
 
