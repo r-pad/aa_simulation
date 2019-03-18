@@ -35,8 +35,8 @@ class _Renderer(object):
         self._fig = plt.figure()
         self._ax = self._fig.add_subplot(111)
         self._ax.set_aspect('equal')
-        self._ax.set_xlim(-2, 3)
-        self._ax.set_ylim(-1, 4)
+        self._ax.set_xlim(-2, 4)
+        self._ax.set_ylim(-2, 2)
 
         # Draw remaining simulation
         self._trajectory, = self._ax.plot(self._x, self._y, 'b-')
