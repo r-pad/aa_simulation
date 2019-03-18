@@ -29,7 +29,7 @@ class VehicleEnv(Env):
     _HORIZON_LENGTH = 100
 
 
-    def __init__(self, target_velocity):
+    def __init__(self, target_velocity, dt):
         """
         Initialize environment parameters.
         """
@@ -41,7 +41,9 @@ class VehicleEnv(Env):
         self.target_velocity = target_velocity
 
         # Time between each simulation iteration
-        self._dt = 0.035
+        # Note: dt is measured to be 0.035, but we train with longer dt
+        #       for more stability in commanded actions.
+        self._dt = dt
 
         # Instantiates object handling simulation renderings
         self._renderer = None

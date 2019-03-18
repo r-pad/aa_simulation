@@ -24,14 +24,18 @@ class CircleEnv(VehicleEnv):
     arc trajectory using relative coordinates.
     """
 
-    def __init__(self, radius, target_velocity):
+    def __init__(self, target_velocity, radius, dt):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(CircleEnv, self).__init__(target_velocity)
+        super(CircleEnv, self).__init__(target_velocity, dt)
 
         # Radius of trajectory to follow
         self.radius = radius
+
+        # Reward function parameters
+        self._lambda1 = 0.25
+        self._lambda2 = 0.25
 
 
     @property
@@ -76,14 +80,12 @@ class CircleEnv(VehicleEnv):
         r = self.radius
         x, y, _, x_dot, y_dot, _ = nextstate
         dx, dth, dx_dot, dth_dot = next_observation
-        lambda1 = 0.25
-        lambda2 = 0.25
         velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
         vel_diff = velocity - self.target_velocity
         distance = r - np.sqrt(np.square(x)+np.square(y))
         reward = -np.abs(distance)
-        reward -= lambda1 * vel_diff**2
-        reward -= lambda2 * max(0, abs(dth) - np.pi/2)**2
+        reward -= self._lambda1 * vel_diff**2
+        reward -= self._lambda2 * max(0, abs(dth) - np.pi/2)**2
 
         return Step(observation=next_observation, reward=reward,
                 done=done, dist=distance, vel=vel_diff)

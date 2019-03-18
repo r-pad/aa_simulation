@@ -25,11 +25,14 @@ class StraightEnv(VehicleEnv):
     move right on the line y=0 for all time.
     """
 
-    def __init__(self, target_velocity):
+    def __init__(self, target_velocity, dt):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(StraightEnv, self).__init__(target_velocity)
+        super(StraightEnv, self).__init__(target_velocity, dt)
+
+        # Reward function parameters
+        self._lambda1 = 0.25
 
 
     @property
@@ -74,12 +77,11 @@ class StraightEnv(VehicleEnv):
         self._state = nextstate
         done = False
         x, y, _, x_dot, y_dot, _ = nextstate
-        lambda1 = 0.25
         velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
         vel_diff = velocity - self.target_velocity
         distance = y
         reward = -np.absolute(distance)
-        reward -= lambda1 * np.square(vel_diff)
+        reward -= self._lambda1 * np.square(vel_diff)
 
         next_observation = self._state_to_observation(nextstate)
         return Step(observation=next_observation, reward=reward,

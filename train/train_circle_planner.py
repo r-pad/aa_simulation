@@ -24,9 +24,11 @@ from aa_simulation.envs.circle_env import CircleEnv
 def run_task(vv, log_dir=None, exp_name=None):
 
     # Load environment
-    radius = vv['radius']
-    target_velocity = vv['target_velocity']
-    env = normalize(CircleEnv(radius, target_velocity))
+    env = normalize(CircleEnv(
+        target_velocity=vv['target_velocity'],
+        radius=vv['radius'],
+        dt=vv['dt']
+    ))
 
     # Save variant information for comparison plots
     variant_file = logger.get_snapshot_dir() + '/variant.json'
@@ -44,7 +46,7 @@ def run_task(vv, log_dir=None, exp_name=None):
         baseline=baseline,
         batch_size=600,
         max_path_length=env.horizon,
-        n_itr=1000,
+        n_itr=600,
         discount=0.99,
         step_size=0.01,
         plot=False,
@@ -56,10 +58,11 @@ def main():
 
     # Set up multiple experiments at once
     vg = VariantGenerator()
-    seeds = [100, 200, 300, 400]
+    seeds = [100, 200, 300]
+    vg.add('seed', seeds)
     vg.add('target_velocity', [0.7])
     vg.add('radius', [1.0])
-    vg.add('seed', seeds)
+    vg.add('dt', [0.5])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant
