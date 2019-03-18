@@ -70,26 +70,16 @@ class StraightEnv(VehicleEnv):
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)
 
-        # Check collision and assign reward to transition
-        collision = self._check_collision(nextstate)
-
-        if collision:
-            reward = -100
-            done = True
-            distance = np.inf
-            vel_diff = np.inf
-        else:
-            self._state = nextstate
-            done = False
-
-            # Trajectory following
-            x, y, _, x_dot, y_dot, _ = nextstate
-            lambda1 = 0.25
-            velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-            vel_diff = velocity - self.target_velocity
-            distance = y
-            reward = -np.absolute(distance)
-            reward -= lambda1 * np.square(vel_diff)
+        # Assign reward to transition
+        self._state = nextstate
+        done = False
+        x, y, _, x_dot, y_dot, _ = nextstate
+        lambda1 = 0.25
+        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
+        vel_diff = velocity - self.target_velocity
+        distance = y
+        reward = -np.absolute(distance)
+        reward -= lambda1 * np.square(vel_diff)
 
         next_observation = self._state_to_observation(nextstate)
         return Step(observation=next_observation, reward=reward,

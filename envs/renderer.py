@@ -16,16 +16,15 @@ import numpy as np
 
 class _Renderer(object):
     """
-    Renders the RC car and obstacles contained in the simulation.
+    Renders the RC car in simulation.
     """
 
-    def __init__(self, params, obstacles, goal, env_type):
+    def __init__(self, params, env_type):
         """
         Initialize simulation.
         """
         # Simulation parameters
         self._params = params
-        self._obstacles = obstacles
 
         # Saved car trajectory
         self._x = []
@@ -36,40 +35,11 @@ class _Renderer(object):
         self._fig = plt.figure()
         self._ax = self._fig.add_subplot(111)
         self._ax.set_aspect('equal')
-        if env_type == 'EmptyEnv':
-            self._ax.set_xlim(-1, 4)
-            self._ax.set_ylim(-2, 2)
-        elif env_type == 'ArcRelativeEnv' or env_type == 'ArcRelativeEnv2':
-            self._ax.set_xlim(-2.5, 2.5)
-            self._ax.set_ylim(-2.5, 2.5)
-        else:
-            self._ax.set_xlim(-2, 3)
-            self._ax.set_ylim(-1, 4)
-
-        # Show ideal trajectory
-        if env_type == 'ArcEnv':
-            arc = patches.Arc((goal[0]/2, 0), goal[0], goal[0],
-                    0, 180, 360, color='c', ls=':')
-            self._ax.add_patch(arc)
-        elif env_type == 'ArcRelativeEnv' or env_type == 'ArcRelativeEnv2':
-            arc = patches.Arc((0, 0), 3, 3,
-                    0, 0, 360, color='c', ls=':')
-            self._ax.add_patch(arc)
+        self._ax.set_xlim(-2, 3)
+        self._ax.set_ylim(-1, 4)
 
         # Draw remaining simulation
         self._trajectory, = self._ax.plot(self._x, self._y, 'b-')
-        if len(self._obstacles) != 0:
-            for i in range(len(self._obstacles)):
-                obstacle = self._obstacles[i]
-                obstacle_x = obstacle[0]
-                obstacle_y = obstacle[1]
-                obstacle_r = obstacle[2]
-                circle = plt.Circle((obstacle_x, obstacle_y),
-                        obstacle_r, color='0.5')
-                self._ax.add_artist(circle)
-        if goal != None:
-            circle = plt.Circle((goal[0], goal[1]), goal[2], fill=False)
-            self._ax.add_artist(circle)
 
         # Indicates whether display has been created
         self._car = None

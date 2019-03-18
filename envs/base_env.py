@@ -3,7 +3,7 @@
 """
 @author: edwardahn
 
-Simulation environment using vehicle model defined in Model.py.
+Simulation environment using vehicle model defined in model.py.
 """
 
 import yaml
@@ -20,8 +20,7 @@ from aa_simulation.envs.renderer import _Renderer
 
 class VehicleEnv(Env):
     """
-    Simulation environment for an RC car traversing through
-    obstacles specified by the user.
+    Simulation environment for a FFAST RC car.
     """
 
     _MIN_VELOCITY = 0.0
@@ -39,8 +38,6 @@ class VehicleEnv(Env):
         self._params = yaml.load(stream)
         self._model = VehicleModel(self._params)
         self._action = None
-        self._obstacles = []
-        self._goal = None
         self.target_velocity = target_velocity
 
         # Time between each simulation iteration
@@ -96,8 +93,8 @@ class VehicleEnv(Env):
         Render simulation environment.
         """
         if self._renderer == None:
-            self._renderer = _Renderer(self._params, self._obstacles,
-                    self._goal, self.__class__.__name__)
+            self._renderer = _Renderer(self._params,
+                    self.__class__.__name__)
         self._renderer.update(self._state, self._action)
 
 
@@ -123,23 +120,3 @@ class VehicleEnv(Env):
         Get initial state of car when simulation is reset.
         """
         raise NotImplementedError
-
-
-    def _check_collision(self, state):
-        """
-        Check if state collides with any of the obstacles.
-        """
-        point = state[0:2]
-
-        if len(self._obstacles) == 0:
-            return False
-
-        for i in range(len(self._obstacles)):
-            obstacle = self._obstacles[i]
-            center = obstacle[0:2]
-            radius = obstacle[2]
-            if np.linalg.norm(center-point) < radius:
-                return True
-
-        return False
-
