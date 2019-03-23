@@ -30,7 +30,7 @@ Run scripts (such as any of the Python scripts in the directory ```scripts``` or
 python aa_simulation/{train,scripts}/FILENAME.py
 ```
 
-Arguments may need to be added to the command depending on the script. The training script can also be edited to experiment with different parameters (such as seed values, target velocity, etc.)
+Arguments may need to be added to the command depending on the script. For training, the training scripts can be edited to experiment with different parameters (such as seed values, target velocity, etc.).
 
 ## Exporting Learned Policies
 
