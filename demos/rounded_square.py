@@ -174,9 +174,7 @@ def move(env, policy, args, way_point, renderer,\
 def init_render():
     stream = open('aa_simulation/envs/model_params.yaml', 'r')
     params = yaml.load(stream)
-    obstacles = []
-    goal = None
-    return _Renderer(params, obstacles, goal, None)
+    return _Renderer(params, None)
 
 
 def main():
@@ -223,7 +221,6 @@ def main():
         state = move(env_curve, policy_curve, args,\
                 way_points[point], renderer, state,\
                 True, curve_params[i])
-        print(state)
         point += 1
 
         # Move straightly for length 2
@@ -231,7 +228,6 @@ def main():
         state = move(env_straight, policy_straight, args,\
                 way_points[point], renderer, state,\
                 False, straight_params[i])
-        print(state)
         point += 1
 
     profiler.disable()
