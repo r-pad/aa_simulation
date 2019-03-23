@@ -1,14 +1,16 @@
 # Assured Autonomy - Simulation
 
-This module provides a simulation environment and training scripts for training an RWD vehicle modeled using a kinematic bicycle model with a tire dynamic model to move from one location to another while safely avoiding obstacles. Specifically, this module is tailored for use in an [rllab](https://github.com/rll/rllab) setting, which is a third-party library that we use to train our vehicle planner using deep reinforcement learning.
+This module provides a simulation environment and training scripts for training a planner for an RWD vehicle modeled using a dynamic bicycle model with a Pacejka tire dynamic model. We use the third-party deep reinforcement learning library [rllab](https://github.com/rll/rllab) to train our policies.
 
-We train a set of planners to achieve this task. The local planner trains the vehicle to follow circles of arbitrary curvature (with a limit on the max curvature it can follow), which conforms well to Dubins path. The global planner takes in sensor readings and outputs curvatures for the local planner to follow. As of now, only the local planner has been trained.
+Specifically, this module has training scripts to train policies that command the robot to move in straight lines or circles of a given radius. We do this in the hopes that in the future, our planners can follow paths of arbitrary curvature, conforming to the well-studied area of planning with Dubins paths.
 
 ## Code Structure
 
-The ```envs``` directory contains implementation of simulation environments. Each environment inherits a base environment (in ```base_env.py```), which uses a vehicle model specified in ```model.py```. An optional renderer used viewing trained policies is also implemented in ```renderer.py```.
+Below the main directories that form the core of this module are described.
 
-The ```train``` directory contains training scripts to train local planners and global planners for the vehicle. More information is specified in the files. The training scripts use [rllab](https://github.com/rll/rllab) as a backend.
+The ```envs``` directory contains implementation of simulation environments. Each environment inherits a base environment (in ```base_env.py```), which uses a vehicle dynamics model specified in ```model.py```. An optional renderer used for viewing trained policies is also implemented in ```renderer.py```.
+
+The ```train``` directory contains training scripts to train planners to follow circles or straight lines.
 
 The ```scripts``` directory contains scripts that may be helpful when evaluating trained policies, exporting trained policies, etc.
 
@@ -28,4 +30,35 @@ Run scripts (such as any of the Python scripts in the directory ```scripts``` or
 python aa_simulation/{train,scripts}/FILENAME.py
 ```
 
-Arguments may need to be added to the command depending on the script.
+Arguments may need to be added to the command depending on the script. The training script can also be edited to experiment with different parameters (such as seed values, target velocity, etc.)
+
+## Exporting Learned Policies
+
+Each learned policy is saved in a pickle file by rllab. Unpickling this learned policy requires the user to be inside of an rllab virtual environment (ie. rllab conda environment). To allow the user to unpickle learned policies without this constraint, the command below exports the saved policy into a form that can be read without being in an rllab virtual environment.
+
+```
+python aa_simulation/scripts/export_policy PATH_TO_SAVED_POLICY
+```
+
+For example, if the policy was saved in the path ```data/exp1/params.pkl```, the user can execute the command
+
+```
+python aa_simulation/scripts/export_policy.py data/exp1/params.pkl
+```
+
+## Hints
+
+Suppose the user trained a policy, and saved the policy in the path ```data/exp1/params.pkl```.
+
+To view the training curves:
+
+```
+python rllab/viskit/frontend.py data/exp1
+```
+
+To evaluate the performance of learned policies in simulation:
+
+```
+python aa_simulation/scripts/eval_policy.py data/exp1/params.pkl
+```
+
