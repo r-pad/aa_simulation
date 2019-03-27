@@ -88,7 +88,8 @@ class CircleEnv(VehicleEnv):
         reward -= self._lambda2 * max(0, abs(dth) - np.pi/2)**2
 
         return Step(observation=next_observation, reward=reward,
-                done=done, dist=distance, vel=vel_diff)
+                done=done, dist=distance, vel=vel_diff,
+                kappa=self._model.kappa)
 
 
     def reset(self):

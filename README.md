@@ -16,7 +16,7 @@ The ```scripts``` directory contains scripts that may be helpful when evaluating
 
 ## Installation Requirements
 
-This project depends on the following:
+This module depends on the following:
 
 * [rllab](https://github.com/rll/rllab)
 

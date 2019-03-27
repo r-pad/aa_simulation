@@ -44,6 +44,9 @@ class VehicleModel(object):
         # Minimum velocity needed to overcome static friction
         self.stiction_velocity = 0.8
 
+        # Slip ratio
+        self.kappa = None
+
 
     def state_transition(self, X, U, dt):
         """
@@ -181,6 +184,7 @@ class VehicleModel(object):
             Fx = self.C_x/gamma * (K/(1+K)) * F * spin_dir
             Fy = -self.C_alpha/gamma * (np.tan(alpha)/(1+K)) * F
 
+        self.kappa = K
         return Fx, Fy
 
 
