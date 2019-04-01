@@ -104,23 +104,30 @@ class VehicleEnv(Env):
         """
         Log extra information per iteration based on collected paths.
         """
+        log_kappa = False
+        if self.__class__.__name__ == 'CircleEnv':
+            log_kappa = True
+
         dists = []
         vels = []
         kappas = []
         for path in paths:
             dists.append(path['env_infos']['dist'])
             vels.append(path['env_infos']['vel'])
-            kappas.append(path['env_infos']['kappa'])
+            if log_kappa:
+                kappas.append(path['env_infos']['kappa'])
         dists = np.abs(dists)
         vels = np.abs(vels)
-        kappas = np.abs(kappas)
+        if log_kappa:
+            kappas = np.abs(kappas)
 
         logger.record_tabular('AverageAbsDistanceError', np.mean(dists))
         logger.record_tabular('AverageAbsVelocityError', np.mean(vels))
         logger.record_tabular('MaxAbsDistanceError', np.max(dists))
         logger.record_tabular('MaxAbsVelocityError', np.max(vels))
-        logger.record_tabular('AverageKappa', np.mean(kappas))
-        logger.record_tabular('MaxKappa', np.max(kappas))
+        if log_kappa:
+            logger.record_tabular('AverageKappa', np.mean(kappas))
+            logger.record_tabular('MaxKappa', np.max(kappas))
 
 
     @property
