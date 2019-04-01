@@ -153,6 +153,7 @@ class VehicleModel(object):
             return Fx, Fy
         else:
             K = (wheel_vx-v_x)/np.abs(v_x);
+        self.kappa = K
 
         # Instead of avoiding -1, now look for positive equivalent
         if K < 0:
@@ -184,7 +185,6 @@ class VehicleModel(object):
             Fx = self.C_x/gamma * (K/(1+K)) * F * spin_dir
             Fy = -self.C_alpha/gamma * (np.tan(alpha)/(1+K)) * F
 
-        self.kappa = K
         return Fx, Fy
 
 
