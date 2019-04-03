@@ -9,7 +9,6 @@ Environment for training a local planner to move in a straight line.
 import csv
 
 import numpy as np
-import math
 
 from rllab.envs.base import Step
 from rllab.spaces import Box
