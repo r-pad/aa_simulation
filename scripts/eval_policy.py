@@ -53,7 +53,6 @@ def plot_curve(data, name, units):
     plt.axhline(mean-std, color='r', linestyle='dashed', linewidth=1)
     plt.text(0.87, 0.9, stats, ha='center', va='center',
             transform=plt.gca().transAxes)
-    plt.show()
 
 
 def plot_error_curve(error, name, units):
@@ -68,11 +67,6 @@ def plot_error_curve(error, name, units):
     plt.title(title)
     plt.xlabel('Time steps')
     plt.ylabel('Error (%s)' % units)
-    if name == 'Distance':
-        plt.gca().set_ylim((-0.25, 0.25))
-    else:
-        plt.gca().set_ylim((-0.7, 0.7))
-    plt.show()
 
 
 def plot_distribution(error, name, units):
@@ -97,7 +91,6 @@ def plot_distribution(error, name, units):
     plt.axvline(mean-std, color='r', linestyle='dashed', linewidth=1)
     plt.text(0.87, 0.9, stats, ha='center', va='center',
             transform=plt.gca().transAxes)
-    plt.show()
 
 
 def rescale_actions(actions):
@@ -162,6 +155,7 @@ def main():
     plot_error_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
     plot_distribution(path['env_infos']['dist'][skip:], 'Distance', 'm')
     plot_distribution(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
+    plt.show()
 
     # Block until key is pressed
     sys.stdout.write("Press <enter> to continue: ")
