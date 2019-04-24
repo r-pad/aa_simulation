@@ -15,7 +15,6 @@ from rllab.algos.trpo import TRPO
 from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.core.network import MLP
 from rllab.envs.base import Env
-from rllab.envs.normalized_env import normalize
 from rllab.misc import logger
 from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
@@ -27,11 +26,11 @@ from aa_simulation.envs.circle_env import CircleEnv
 def run_task(vv, log_dir=None, exp_name=None):
 
     # Load environment
-    env = normalize(CircleEnv(
+    env = CircleEnv(
         target_velocity=vv['target_velocity'],
         radius=vv['radius'],
         dt=vv['dt']
-    ))
+    )
 
     # Save variant information for comparison plots
     variant_file = logger.get_snapshot_dir() + '/variant.json'
@@ -42,7 +41,7 @@ def run_task(vv, log_dir=None, exp_name=None):
     #       faster training (rough estimates for RL to finetune).
     wheelbase = 0.257
     target_velocity = vv['target_velocity']
-    target_steering = np.arctan(wheelbase / vv['radius'])
+    target_steering = np.arctan(wheelbase / vv['radius'])  # CCW
     output_mean = np.array([vv['target_velocity'], target_steering])
     hidden_sizes = (32, 32)
     mean_network = MLP(
