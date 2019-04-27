@@ -69,9 +69,9 @@ class CircleEnv(VehicleEnv):
         Move one iteration forward in simulation.
         """
         # Get next state from dynamics equations
+        if action[0] < 0:   # Only allow forward direction
+            action[0] = 0
         self._action = action
-        if self._action[0] < 0:     # Only allow forward direction
-            self._action[0] = 0
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)
         next_observation = self._state_to_relative(nextstate)
