@@ -83,7 +83,6 @@ class CircleEnv(VehicleEnv):
         x, y, _, x_dot, y_dot, _ = nextstate
         dx, dth, dx_dot, dth_dot = next_observation
         velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-        print(self.target_velocity)
         vel_diff = velocity - self.target_velocity
         distance = r - np.sqrt(np.square(x)+np.square(y))
         reward = -np.abs(distance)
