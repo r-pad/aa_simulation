@@ -70,6 +70,8 @@ class CircleEnv(VehicleEnv):
         """
         # Get next state from dynamics equations
         self._action = action
+        if self._action[0] < 0:     # Only allow forward direction
+            self._action[0] = 0
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)
         next_observation = self._state_to_relative(nextstate)
