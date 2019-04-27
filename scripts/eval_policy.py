@@ -93,21 +93,6 @@ def plot_distribution(error, name, units):
             transform=plt.gca().transAxes)
 
 
-def rescale_actions(actions):
-    vel_lb = VehicleEnv._MIN_VELOCITY
-    vel_ub = VehicleEnv._MAX_VELOCITY
-    steer_lb = -VehicleEnv._MAX_STEER_ANGLE
-    steer_ub = VehicleEnv._MAX_STEER_ANGLE
-    lb = np.array([vel_lb, steer_lb])
-    ub = np.array([vel_ub, steer_ub])
-    scaled_actions = []
-    for i, action in enumerate(actions):
-        scaled_action = lb + (action + 1.) * 0.5 * (ub - lb)
-        scaled_action = np.clip(scaled_action, lb, ub)
-        scaled_actions.append(scaled_action)
-    return np.array(scaled_actions)
-
-
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('file', type=str,
@@ -148,7 +133,7 @@ def main():
 
     # Policy analysis
     profile_code(profiler)
-    actions = rescale_actions(path['actions'])
+    actions = path['actions']
     plot_curve(actions[:, 0][skip:], 'Commanded Speed', 'm/s')
     plot_curve(actions[:, 1][skip:], 'Commanded Steering Angle', 'rad')
     plot_error_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
