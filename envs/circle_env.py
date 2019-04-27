@@ -51,7 +51,7 @@ class CircleEnv(VehicleEnv):
         # Compute domain randomized variables
         x = np.random.uniform(-0.25, 0.25) - self.radius
         yaw = np.random.uniform(-np.pi/3, np.pi/3) + np.deg2rad(270)
-        x_dot = np.random.uniform(0, 1.3)
+        x_dot = np.random.uniform(0, 2*self.target_velocity)
         y_dot = np.random.uniform(-0.6, 0.6)
         yaw_dot = np.random.uniform(-2.0, 2.0)
 
@@ -83,6 +83,7 @@ class CircleEnv(VehicleEnv):
         x, y, _, x_dot, y_dot, _ = nextstate
         dx, dth, dx_dot, dth_dot = next_observation
         velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
+        print(self.target_velocity)
         vel_diff = velocity - self.target_velocity
         distance = r - np.sqrt(np.square(x)+np.square(y))
         reward = -np.abs(distance)
