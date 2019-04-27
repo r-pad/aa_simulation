@@ -9,6 +9,7 @@ trajectory with an arbitrary curvature.
 
 import numpy as np
 
+import lasagne.init as LI
 import lasagne.nonlinearities as LN
 
 from rllab.algos.trpo import TRPO
@@ -44,17 +45,21 @@ def run_task(vv, log_dir=None, exp_name=None):
     target_steering = np.arctan(wheelbase / vv['radius'])  # CCW
     output_mean = np.array([vv['target_velocity'], target_steering])
     hidden_sizes = (32, 32)
+    W_gain = 0.1
+    init_std = 0.1
     mean_network = MLP(
         input_shape=(env.spec.observation_space.flat_dim,),
         output_dim=env.spec.action_space.flat_dim,
         hidden_sizes=hidden_sizes,
         hidden_nonlinearity=LN.tanh,
         output_nonlinearity=None,
+        output_W_init=LI.GlorotUniform(gain=W_gain),
         output_b_init=output_mean
     )
     policy = GaussianMLPPolicy(
         env_spec=env.spec,
         hidden_sizes=hidden_sizes,
+        init_std=init_std,
         mean_network=mean_network
     )
     baseline = LinearFeatureBaseline(env_spec=env.spec)
