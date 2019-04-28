@@ -112,8 +112,6 @@ class DynamicBicycleModel(object):
 
     def _tire_dynamics_front(self, alpha):
         """
-        :param v_x: Current longitudinal velocity
-        :param wheel_vx: Commanded wheel velocity
         :param alpha: Slip angle
         :return: lateral force on the front tires
         """
@@ -138,6 +136,26 @@ class DynamicBicycleModel(object):
         pi = np.pi
         val = val - 2*pi*np.floor((val+pi)/(2*pi));
         return val
+
+
+class LinearTireModel(DynamicBicycleModel):
+    """
+    Use a dynamic bicycle model with a linear tire model for tire dynamics.
+    """
+
+    def __init__(self, params):
+        super(LinearTireModel, self).__init__(params)
+
+
+    def _tire_dynamics_front(self, alpha):
+        return self.C_alpha * alpha
+
+
+    def _tire_dynamics_rear(self, v_x, wheel_vx, alpha):
+        self.kappa = (wheel_vx-v_x)/np.abs(v_x);
+        F_xr = self.C_x * self.kappa
+        F_yr = self.C_alpha * alpha
+        return F_xr, F_yr
 
 
 class BrushTireModel(DynamicBicycleModel):
