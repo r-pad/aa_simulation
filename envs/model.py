@@ -15,10 +15,9 @@ from scipy.integrate import solve_ivp
 from aa_simulation.misc.utils import normalize_angle
 
 
-class VehicleModel(object):
+class DynamicBicycleModel(object):
     """
-    Vehicle modeled as a three degrees of freedom bicycle model
-    with brush tire model for tire dynamics.
+    Vehicle modeled as a three degrees of freedom dynamic bicycle model.
     """
 
     def __init__(self, params):
@@ -65,7 +64,7 @@ class VehicleModel(object):
         """
         pos_x = X[0]
         pos_y = X[1]
-        pos_yaw = VehicleModel.wraptopi(X[2]);
+        pos_yaw = DynamicBicycleModel.wraptopi(X[2]);
         v_x = X[3]
         v_y = X[4]
         yaw_rate = X[5]
@@ -113,8 +112,44 @@ class VehicleModel(object):
 
     def _tire_dynamics_front(self, alpha):
         """
-        Front tire dynamics.
+        :param v_x: Current longitudinal velocity
+        :param wheel_vx: Commanded wheel velocity
+        :param alpha: Slip angle
+        :return: lateral force on the front tires
         """
+        raise NotImplementedError
+
+
+    def _tire_dynamics_rear(self, v_x, wheel_vx, alpha):
+        """
+        :param v_x: Current longitudinal velocity
+        :param wheel_vx: Commanded wheel velocity
+        :param alpha: Slip angle
+        :return: longitudinal and lateral forces on the rear tires
+        """
+        raise NotImplementedError
+
+
+    @staticmethod
+    def wraptopi(val):
+        """
+        Wrap radian value to the interval [-pi, pi].
+        """
+        pi = np.pi
+        val = val - 2*pi*np.floor((val+pi)/(2*pi));
+        return val
+
+
+class BrushTireModel(DynamicBicycleModel):
+    """
+    Use a dynamic bicycle model with a brush tire model for tire dynamics.
+    """
+
+    def __init__(self, params):
+        super(BrushTireModel, self).__init__(params)
+
+
+    def _tire_dynamics_front(self, alpha):
         # alpha > pi/2 is invalid because of the use of tan(). Since
         # alpha > pi/2 means vehicle moving backwards, Fy's sign has
         # to be reversed, hence we multiply by sign(alpha)
@@ -139,9 +174,6 @@ class VehicleModel(object):
 
 
     def _tire_dynamics_rear(self, v_x, wheel_vx, alpha):
-        """
-        Rear tire dynamics.
-        """
         # Find longitudinal wheel slip K (kappa)
         if (np.abs(wheel_vx-v_x) < 0.01 or
                 (np.abs(wheel_vx) < 0.01 and np.abs(v_x) < 0.01)):
@@ -186,14 +218,4 @@ class VehicleModel(object):
             Fy = -self.C_alpha/gamma * (np.tan(alpha)/(1+K)) * F
 
         return Fx, Fy
-
-
-    @staticmethod
-    def wraptopi(val):
-        """
-        Wrap radian value to the interval [-pi, pi].
-        """
-        pi = np.pi
-        val = val - 2*pi*np.floor((val+pi)/(2*pi));
-        return val
 

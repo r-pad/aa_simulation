@@ -14,7 +14,7 @@ from rllab.envs.base import Env
 from rllab.misc import logger
 from rllab.spaces import Box
 
-from aa_simulation.envs.model import VehicleModel
+from aa_simulation.envs.model import BrushTireModel
 from aa_simulation.envs.renderer import _Renderer
 
 
@@ -36,7 +36,7 @@ class VehicleEnv(Env):
         # Instantiate vehicle model and interpret parameters
         stream = open('aa_simulation/envs/model_params.yaml', 'r')
         self._params = yaml.load(stream)
-        self._model = VehicleModel(self._params)
+        self._model = BrushTireModel(self._params)
         self._action = None
         self.target_velocity = target_velocity
 
