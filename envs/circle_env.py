@@ -24,11 +24,11 @@ class CircleEnv(VehicleEnv):
     arc trajectory using relative coordinates.
     """
 
-    def __init__(self, target_velocity, radius, dt):
+    def __init__(self, target_velocity, radius, dt, model_type):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(CircleEnv, self).__init__(target_velocity, dt)
+        super(CircleEnv, self).__init__(target_velocity, dt, model_type)
 
         # Radius of trajectory to follow
         self.radius = radius

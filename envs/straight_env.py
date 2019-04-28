@@ -24,11 +24,11 @@ class StraightEnv(VehicleEnv):
     move right on the line y=0 for all time.
     """
 
-    def __init__(self, target_velocity, dt):
+    def __init__(self, target_velocity, dt, model_type):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(StraightEnv, self).__init__(target_velocity, dt)
+        super(StraightEnv, self).__init__(target_velocity, dt, model_type)
 
         # Reward function parameters
         self._lambda1 = 0.25

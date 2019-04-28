@@ -30,7 +30,8 @@ def run_task(vv, log_dir=None, exp_name=None):
     env = CircleEnv(
         target_velocity=vv['target_velocity'],
         radius=vv['radius'],
-        dt=vv['dt']
+        dt=vv['dt'],
+        model_type='BrushTireModel'
     )
 
     # Save variant information for comparison plots

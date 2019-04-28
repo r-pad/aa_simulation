@@ -14,7 +14,7 @@ from rllab.envs.base import Env
 from rllab.misc import logger
 from rllab.spaces import Box
 
-from aa_simulation.envs.model import BrushTireModel
+from aa_simulation.envs.model import BrushTireModel, LinearTireModel
 from aa_simulation.envs.renderer import _Renderer
 
 
@@ -29,16 +29,21 @@ class VehicleEnv(Env):
     _HORIZON_LENGTH = 50
 
 
-    def __init__(self, target_velocity, dt):
+    def __init__(self, target_velocity, dt, model_type):
         """
         Initialize environment parameters.
         """
         # Instantiate vehicle model and interpret parameters
         stream = open('aa_simulation/envs/model_params.yaml', 'r')
         self._params = yaml.load(stream)
-        self._model = BrushTireModel(self._params)
         self._action = None
         self.target_velocity = target_velocity
+        if model_type == 'BrushTireModel':
+            self._model = BrushTireModel(self._params)
+        elif model_type == 'LinearTireModel':
+            self._model = LinearTireModel(self._params)
+        else:
+            raise ValueError('Invalid vehicle model type')
 
         # Time between each simulation iteration
         # Note: dt is measured to be 0.035, but we train with longer dt

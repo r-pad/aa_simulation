@@ -26,7 +26,8 @@ def run_task(vv, log_dir=None, exp_name=None):
     # Load environment
     env = normalize(StraightEnv(
         target_velocity=vv['target_velocity'],
-        dt=vv['dt']
+        dt=vv['dt'],
+        model_type='BrushTireModel'
     ))
 
     # Save variant information for comparison plots
