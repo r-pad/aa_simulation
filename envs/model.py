@@ -152,7 +152,7 @@ class LinearTireModel(DynamicBicycleModel):
 
 
     def _tire_dynamics_rear(self, v_x, wheel_vx, alpha):
-        self.kappa = (wheel_vx-v_x)/np.abs(v_x);
+        self.kappa = (wheel_vx - v_x) / v_x
         F_xr = self.C_x * self.kappa
         F_yr = self.C_alpha * alpha
         return F_xr, F_yr
