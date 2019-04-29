@@ -31,7 +31,7 @@ def run_task(vv, log_dir=None, exp_name=None):
         target_velocity=vv['target_velocity'],
         radius=vv['radius'],
         dt=vv['dt'],
-        model_type='BrushTireModel'
+        model_type=vv['model_type']
     )
 
     # Save variant information for comparison plots
@@ -89,6 +89,7 @@ def main():
     vg.add('target_velocity', [0.7])
     vg.add('radius', [1.0])
     vg.add('dt', [0.03])
+    vg.add('model_type', ['BrushTireModel'])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant

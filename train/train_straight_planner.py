@@ -27,7 +27,7 @@ def run_task(vv, log_dir=None, exp_name=None):
     env = normalize(StraightEnv(
         target_velocity=vv['target_velocity'],
         dt=vv['dt'],
-        model_type='BrushTireModel'
+        model_type=vv['model_type']
     ))
 
     # Save variant information for comparison plots
@@ -62,6 +62,7 @@ def main():
     vg.add('seed', seeds)
     vg.add('target_velocity', [0.7])
     vg.add('dt', [0.5])
+    vg.add('model_type', ['BrushTireModel'])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant
