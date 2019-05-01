@@ -99,6 +99,7 @@ def parse_arguments():
                         help='Path to the snapshot file')
     parser.add_argument('--max_path_length', type=int, default=100,
                         help='Max length of rollout')
+    parser.add_argument('--seed', type=int, default=9, help='Random seed')
     parser.add_argument('--speedup', type=float, default=100000,
                         help='Speedup')
     parser.add_argument('--skip', type=int, default=0,
@@ -122,7 +123,7 @@ def main():
     plt.ion()
 
     # Set fixed random seed
-    np.random.seed(9)
+    np.random.seed(args.seed)
 
     # Sample one rollout
     profiler.enable()
