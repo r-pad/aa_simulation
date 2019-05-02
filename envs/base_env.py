@@ -26,7 +26,7 @@ class VehicleEnv(Env):
     _MIN_VELOCITY = 0.0
     _MAX_VELOCITY = 10.0
     _MAX_STEER_ANGLE = np.pi / 6
-    _HORIZON_LENGTH = 50
+    _HORIZON_LENGTH = 100
 
 
     def __init__(self, target_velocity, dt, model_type):
