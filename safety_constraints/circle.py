@@ -20,9 +20,10 @@ class CircleSafetyConstraint(SafetyConstraint, Serializable):
         :param max_value: Upper threshold for constraint return
         :param eps: Stay at most epsilon distance away from circle
         """
-        super(CircleSafetyConstraint, self).__init__(max_value, **kwargs)
         self.max_value = max_value
         self.eps = eps
+        Serializable.quick_init(self, locals())
+        super(CircleSafetyConstraint, self).__init__(max_value, **kwargs)
 
 
     def evaluate(self, path):
