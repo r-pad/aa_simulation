@@ -22,9 +22,11 @@ from rllab.misc import logger
 from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
+from sandbox.cpo.algos.safe.cpo import CPO
 from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
 from aa_simulation.envs.circle_env import CircleEnv
+from aa_simulation.safety_constraints.circle import CircleSafetyConstraint
 
 # Pre-trained policy and baseline
 policy = None
@@ -34,6 +36,9 @@ baseline = None
 def run_task(vv, log_dir=None, exp_name=None):
     global policy
     global baseline
+
+    trpo_stepsize = 0.01
+    trpo_subsample_factor = 0.2
 
     # Load environment
     env = CircleEnv(
@@ -73,18 +78,35 @@ def run_task(vv, log_dir=None, exp_name=None):
             init_std=init_std,
             mean_network=mean_network
         )
-        baseline = LinearFeatureBaseline(env_spec=env.spec)
+        baseline = LinearFeatureBaseline(
+            env_spec=env.spec,
+            target_key='returns'
+        )
 
-    algo = TRPO(
+    safety_baseline = LinearFeatureBaseline(
+        env_spec=env.spec,
+        target_key='safety_returns'
+    )
+
+    safety_constraint = CircleSafetyConstraint(
+        max_value=1.0,
+        baseline=safety_baseline
+    )
+
+    algo = CPO(
         env=env,
         policy=policy,
         baseline=baseline,
+        safety_constraint=safety_constraint,
         batch_size=600,
         max_path_length=env.horizon,
-        n_itr=600,
+        n_itr=1000,
         discount=0.99,
-        step_size=0.01,
-        plot=False,
+        step_size=trpo_stepsize,
+        gae_lambda=0.95,
+        safety_gae_lambda=1,
+        optimizer_args={'subsample_factor':trpo_subsample_factor},
+        plot=False
     )
     algo.train()
 
