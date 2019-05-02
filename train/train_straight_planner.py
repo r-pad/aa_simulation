@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-@author: Edward Ahn
+@author: edwardahn
 
 Train local planner using TRPO so that a vehicle can follow a
 straight line.
+
+--------------------------------------
+TODO:
+ - allow fine-tuning
+ - set mean/var of policy net
+--------------------------------------
 """
 
 import numpy as np
