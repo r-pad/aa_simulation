@@ -16,13 +16,13 @@ import lasagne.init as LI
 import lasagne.nonlinearities as LN
 
 from rllab.algos.trpo import TRPO
-from rllab.baselines.linear_feature_baseline import LinearFeatureBaseline
 from rllab.core.network import MLP
 from rllab.envs.base import Env
 from rllab.misc import logger
 from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
+from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
 from aa_simulation.envs.circle_env import CircleEnv
 
