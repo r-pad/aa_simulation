@@ -132,13 +132,16 @@ def main():
         baseline = data['baseline']
 
     # Set up multiple experiments at once
+    # Note: There is no notion of a target velocity in CPO, but it does
+    #       control the distribution of the initial state. See the function
+    #       get_initial_state() in envs/circle_env.py for more information.
     vg = VariantGenerator()
-    seeds = [100, 200]
+    seeds = [100, 200, 300, 400]
     vg.add('seed', seeds)
     vg.add('target_velocity', [0.7])
     vg.add('radius', [1.0])
-    vg.add('dt', [0.03])
-    vg.add('eps', [0.5])
+    vg.add('dt', [0.03, 0.1])
+    vg.add('eps', [0.5, 1.0])
     vg.add('model_type', ['BrushTireModel'])
     print('Number of Configurations: ', len(vg.variants()))
 
