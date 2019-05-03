@@ -25,7 +25,7 @@ from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.cpo.algos.safe.cpo import CPO
 from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
-from aa_simulation.envs.circle_env import CircleEnv
+from aa_simulation.envs.fast_circle_env import FastCircleEnv
 from aa_simulation.safety_constraints.circle import CircleSafetyConstraint
 
 # Pre-trained policy and baseline
@@ -41,7 +41,7 @@ def run_task(vv, log_dir=None, exp_name=None):
     trpo_subsample_factor = 0.2
 
     # Load environment
-    env = CircleEnv(
+    env = FastCircleEnv(
         target_velocity=vv['target_velocity'],
         radius=vv['radius'],
         dt=vv['dt'],
@@ -90,6 +90,7 @@ def run_task(vv, log_dir=None, exp_name=None):
 
     safety_constraint = CircleSafetyConstraint(
         max_value=1.0,
+        eps=vv['eps'],
         baseline=safety_baseline
     )
 
@@ -137,6 +138,7 @@ def main():
     vg.add('target_velocity', [0.7])
     vg.add('radius', [1.0])
     vg.add('dt', [0.03])
+    vg.add('eps', [0.5])
     vg.add('model_type', ['BrushTireModel'])
     print('Number of Configurations: ', len(vg.variants()))
 

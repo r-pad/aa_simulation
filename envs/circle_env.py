@@ -28,7 +28,11 @@ class CircleEnv(VehicleEnv):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(CircleEnv, self).__init__(target_velocity, dt, model_type)
+        super(CircleEnv, self).__init__(
+            target_velocity=target_velocity,
+            dt=dt,
+            model_type=model_type
+        )
 
         # Radius of trajectory to follow
         self.radius = radius
@@ -84,7 +88,7 @@ class CircleEnv(VehicleEnv):
         dx, dth, dx_dot, dth_dot = next_observation
         velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
         vel_diff = velocity - self.target_velocity
-        distance = r - np.sqrt(np.square(x)+np.square(y))
+        distance = r - np.sqrt(x**2 + y**2)
         reward = -np.abs(distance)
         reward -= self._lambda1 * vel_diff**2
         reward -= self._lambda2 * max(0, abs(dth) - np.pi/2)**2
