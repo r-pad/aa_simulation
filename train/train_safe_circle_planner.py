@@ -130,6 +130,9 @@ def main():
         data = joblib.load(args.network)
         policy = data['policy']
         baseline = data['baseline']
+        use_pretrained = True
+    else:
+        use_pretrained = False
 
     # Set up multiple experiments at once
     # Note: There is no notion of a target velocity in CPO, but it does
@@ -143,6 +146,7 @@ def main():
     vg.add('dt', [0.03, 0.1])
     vg.add('eps', [0.5, 1.0])
     vg.add('model_type', ['BrushTireModel'])
+    vg.add('pretrained', [use_pretrained])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant
