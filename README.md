@@ -19,6 +19,7 @@ The ```scripts``` directory contains scripts that may be helpful when evaluating
 This module depends on the following:
 
 * [rllab](https://github.com/rll/rllab)
+* [cpo](https://github.com/jachiam/cpo)
 
 Clone this simulation repository inside rllab's root directory.
 

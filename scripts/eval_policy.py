@@ -137,6 +137,7 @@ def main():
     actions = path['actions']
     plot_curve(actions[:, 0][skip:], 'Commanded Speed', 'm/s')
     plot_curve(actions[:, 1][skip:], 'Commanded Steering Angle', 'rad')
+    plot_curve(path['env_infos']['kappa'][skip:], 'Wheel Slip', 'kappa')
     plot_error_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
     plot_error_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
     plot_distribution(path['env_infos']['dist'][skip:], 'Distance', 'm')
