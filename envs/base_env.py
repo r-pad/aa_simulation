@@ -110,7 +110,8 @@ class VehicleEnv(Env):
         Log extra information per iteration based on collected paths.
         """
         log_kappa = False
-        if self.__class__.__name__ == 'CircleEnv':
+        if self.__class__.__name__ == 'CircleEnv' \
+                or self.__class__.__name__ == 'FastCircleEnv':
             log_kappa = True
 
         dists = []
