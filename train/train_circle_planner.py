@@ -5,6 +5,12 @@
 
 Train local planner using TRPO so that a vehicle can follow a circular
 trajectory with an arbitrary curvature.
+
+----------------------------------------------------------------
+TODO:
+ - reset variance for fine-tuning
+ - set W_gain and init_std as functions of target velocity
+----------------------------------------------------------------
 """
 
 import argparse
@@ -54,7 +60,7 @@ def run_task(vv, log_dir=None, exp_name=None):
         wheelbase = 0.257
         target_velocity = vv['target_velocity']
         target_steering = np.arctan(wheelbase / vv['radius'])  # CCW
-        output_mean = np.array([vv['target_velocity'], target_steering])
+        output_mean = np.array([target_velocity, target_steering])
         hidden_sizes = (32, 32)
         W_gain = 0.1
         init_std = 0.1
