@@ -84,7 +84,8 @@ class StraightEnv(VehicleEnv):
 
         next_observation = self._state_to_observation(nextstate)
         return Step(observation=next_observation, reward=reward,
-                done=done, dist=distance, vel=vel_diff)
+                done=done, dist=distance, vel=vel_diff,
+                kappa=self._model.kappa)
 
 
     def reset(self):

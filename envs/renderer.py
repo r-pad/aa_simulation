@@ -39,8 +39,15 @@ class _Renderer(object):
         self._ax.set_ylim(-3.5, 3.5)
 
         # Show ideal trajectory
-        if env_type == 'CircleEnv' or env_type == 'FastCircleEnv':
+        if env_type == 'StraightEnv':
+            plt.axhline(0, color='c', linestyle=':')
+        elif env_type == 'CircleEnv':
             arc = patches.Arc((0, 0), 2, 2, 0, 0, 360, color='c', ls=':')
+            self._ax.add_patch(arc)
+        elif env_type == 'FastCircleEnv':
+            arc = patches.Arc((0, 0), 2, 2, 0, 0, 360, color='c')
+            self._ax.add_patch(arc)
+            arc = patches.Arc((0, 0), 3, 3, 0, 0, 360, color='r', ls=':')
             self._ax.add_patch(arc)
 
         # Draw remaining simulation
