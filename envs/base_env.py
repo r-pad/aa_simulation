@@ -142,3 +142,10 @@ class VehicleEnv(Env):
         Get initial state of car when simulation is reset.
         """
         raise NotImplementedError
+
+    def get_reward(self, state, action):
+        """
+        Reward function definition.
+        """
+        raise NotImplementedError
+

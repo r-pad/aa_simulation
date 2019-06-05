@@ -72,30 +72,15 @@ class CircleEnv(VehicleEnv):
         """
         Move one iteration forward in simulation.
         """
-        # Get next state from dynamics equations
         if action[0] < 0:   # Only allow forward direction
             action[0] = 0
         self._action = action
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)
-        next_observation = self._state_to_relative(nextstate)
-
-        # Assign reward to transition
         self._state = nextstate
-        done = False
-        r = self.radius
-        x, y, _, x_dot, y_dot, _ = nextstate
-        dx, dth, dx_dot, dth_dot = next_observation
-        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-        vel_diff = velocity - self.target_velocity
-        distance = r - np.sqrt(x**2 + y**2)
-        reward = -np.abs(distance)
-        reward -= self._lambda1 * vel_diff**2
-        reward -= self._lambda2 * max(0, abs(dth) - np.pi/2)**2
-
-        return Step(observation=next_observation, reward=reward,
-                done=done, dist=distance, vel=vel_diff,
-                kappa=self._model.kappa)
+        reward, info = self.get_reward(nextstate, action)
+        return Step(observation=info['observation'], reward=reward, done=False,
+                dist=info['dist'], vel=info['vel'], kappa=self._model.kappa)
 
 
     def reset(self):
@@ -111,6 +96,29 @@ class CircleEnv(VehicleEnv):
             self._renderer.reset()
 
         return observation
+
+
+    def get_reward(self, state, action):
+        """
+        Reward function definition.
+        """
+        observation = self._state_to_relative(state)
+        r = self.radius
+        x, y, _, x_dot, y_dot, _ = state
+        dx, dth, dx_dot, dth_dot = observation
+        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
+        vel_diff = velocity - self.target_velocity
+        distance = r - np.sqrt(x**2 + y**2)
+
+        reward = -np.abs(distance)
+        reward -= self._lambda1 * vel_diff**2
+        reward -= self._lambda2 * max(0, abs(dth) - np.pi/2)**2
+
+        info = {}
+        info['observation'] = observation
+        info['dist'] = distance
+        info['vel'] = vel_diff
+        return reward, info
 
 
     def _state_to_relative(self, state):

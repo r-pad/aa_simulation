@@ -71,20 +71,11 @@ class StraightEnv(VehicleEnv):
         self._action = action
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)
-
-        # Assign reward to transition
         self._state = nextstate
-        done = False
-        x, y, _, x_dot, y_dot, _ = nextstate
-        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-        vel_diff = velocity - self.target_velocity
-        distance = y
-        reward = -np.absolute(distance)
-        reward -= self._lambda1 * np.square(vel_diff)
-
         next_observation = self._state_to_observation(nextstate)
+        reward, info = self.get_reward(nextstate, action)
         return Step(observation=next_observation, reward=reward,
-                done=done, dist=distance, vel=vel_diff,
+                done=False, dist=info['dist'], vel=info['vel'],
                 kappa=self._model.kappa)
 
 
@@ -101,6 +92,24 @@ class StraightEnv(VehicleEnv):
             self._renderer.reset()
 
         return observation
+
+
+    def get_reward(self, state, action):
+        """
+        Reward function definition.
+        """
+        x, y, _, x_dot, y_dot, _ = state
+        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
+        vel_diff = velocity - self.target_velocity
+        distance = y
+
+        reward = -np.absolute(distance)
+        reward -= self._lambda1 * np.square(vel_diff)
+
+        info = {}
+        info['dist'] = distance
+        info['vel'] = vel_diff
+        return reward, info
 
 
     @staticmethod
