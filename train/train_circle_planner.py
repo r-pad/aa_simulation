@@ -31,6 +31,7 @@ from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
 from aa_simulation.envs.circle_env import CircleEnv
+from aa_simulation.envs.circle_env_ros import CircleEnvROS
 
 # Pre-trained policy and baseline
 policy = None
@@ -42,12 +43,21 @@ def run_task(vv, log_dir=None, exp_name=None):
     global baseline
 
     # Load environment
-    env = CircleEnv(
-        target_velocity=vv['target_velocity'],
-        radius=vv['radius'],
-        dt=vv['dt'],
-        model_type=vv['model_type']
-    )
+    if not vv['use_ros']:
+        env = CircleEnv(
+            target_velocity=vv['target_velocity'],
+            radius=vv['radius'],
+            dt=vv['dt'],
+            model_type=vv['model_type']
+        )
+    else:
+        pass
+        env = CircleEnvROS(
+            target_velocity=vv['target_velocity'],
+            radius=vv['radius'],
+            dt=vv['dt'],
+            model_type=vv['model_type']
+        )
 
     # Save variant information for comparison plots
     variant_file = logger.get_snapshot_dir() + '/variant.json'
@@ -99,6 +109,7 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--network', type=str,
             help='Path to snapshot file of pre-trained network')
+    parser.set_defaults(use_ros=False)
     args = parser.parse_args()
     return args
 
@@ -116,12 +127,14 @@ def main():
 
     # Set up multiple experiments at once
     vg = VariantGenerator()
+    use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
     vg.add('target_velocity', [0.7])
     vg.add('radius', [1.0])
     vg.add('dt', [0.03])
     vg.add('model_type', ['BrushTireModel'])
+    vg.add('use_ros', [use_ros])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant

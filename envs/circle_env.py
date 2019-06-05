@@ -7,8 +7,6 @@ Environment for training local planner to follow circles of
 arbitrary curvature.
 """
 
-import csv
-
 import numpy as np
 
 from rllab.envs.base import Step

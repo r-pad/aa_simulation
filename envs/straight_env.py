@@ -6,8 +6,6 @@
 Environment for training a local planner to move in a straight line.
 """
 
-import csv
-
 import numpy as np
 
 from rllab.envs.base import Step
