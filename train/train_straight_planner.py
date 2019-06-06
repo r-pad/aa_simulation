@@ -13,10 +13,12 @@ TODO:
 -----------------------------------------------------------------
 """
 
-import numpy as np
+import argparse
 
+import joblib
 import lasagne.init as LI
 import lasagne.nonlinearities as LN
+import numpy as np
 
 from rllab.algos.trpo import TRPO
 from rllab.core.network import MLP
@@ -29,8 +31,14 @@ from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
 from aa_simulation.envs.straight_env import StraightEnv
 
+# Pre-trained policy and baseline
+policy = None
+baseline = None
+
 
 def run_task(vv, log_dir=None, exp_name=None):
+    global policy
+    global baseline
 
     # Load environment
     env = StraightEnv(
@@ -43,29 +51,33 @@ def run_task(vv, log_dir=None, exp_name=None):
     variant_file = logger.get_snapshot_dir() + '/variant.json'
     logger.log_variant(variant_file, vv)
 
-    # Train policy using TRPO
-    target_velocity = vv['target_velocity']
-    target_steering = 0
-    output_mean = np.array([target_velocity, target_steering])
-    hidden_sizes = (32, 32)
-    W_gain = 0.1
-    init_std = 0.1
-    mean_network = MLP(
-        input_shape=(env.spec.observation_space.flat_dim,),
-        output_dim=env.spec.action_space.flat_dim,
-        hidden_sizes=hidden_sizes,
-        hidden_nonlinearity=LN.tanh,
-        output_nonlinearity=None,
-        output_W_init=LI.GlorotUniform(gain=W_gain),
-        output_b_init=output_mean
-    )
-    policy = GaussianMLPPolicy(
-        env_spec=env.spec,
-        hidden_sizes=(32, 32),
-        init_std = init_std,
-        mean_network=mean_network
-    )
-    baseline = LinearFeatureBaseline(env_spec=env.spec)
+    # Build policy and baseline networks
+    # Note: Mean of policy network set to analytically computed values for
+    #       faster training (rough estimates for RL to fine-tune).
+    if policy is None or baseline is None:
+        target_velocity = vv['target_velocity']
+        target_steering = 0
+        output_mean = np.array([target_velocity, target_steering])
+        hidden_sizes = (32, 32)
+        W_gain = 0.1
+        init_std = 0.1
+        mean_network = MLP(
+            input_shape=(env.spec.observation_space.flat_dim,),
+            output_dim=env.spec.action_space.flat_dim,
+            hidden_sizes=hidden_sizes,
+            hidden_nonlinearity=LN.tanh,
+            output_nonlinearity=None,
+            output_W_init=LI.GlorotUniform(gain=W_gain),
+            output_b_init=output_mean
+        )
+        policy = GaussianMLPPolicy(
+            env_spec=env.spec,
+            hidden_sizes=(32, 32),
+            init_std = init_std,
+            mean_network=mean_network
+        )
+        baseline = LinearFeatureBaseline(env_spec=env.spec)
+
     algo = TRPO(
         env=env,
         policy=policy,
@@ -80,7 +92,24 @@ def run_task(vv, log_dir=None, exp_name=None):
     algo.train()
 
 
+def parse_arguments():
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--network', type=str,
+            help='Path to snapshot file of pre-trained network')
+    args = parser.parse_args()
+    return args
+
+
 def main():
+    global policy
+    global baseline
+
+    # Load pre-trained network if available
+    args = parse_arguments()
+    if args.network is not None:
+        data = joblib.load(args.network)
+        policy = data['policy']
+        baseline = data['baseline']
 
     # Set up multiple experiments at once
     vg = VariantGenerator()
@@ -104,3 +133,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
