@@ -49,25 +49,19 @@ class CircleEnvROS(CircleEnv):
 
         self._action_published = False
         self.current_state = np.zeros(6)
-        self.target_y = self.current_state[1]   # See get_initial_state function
 
 
     @property
     def get_initial_state(self):
         """
         Get initial state of car when simulation is reset.
-
-        To make training from scratch easier, set the target straight line to
-        be located not at y=0 but rather at y=self.current_state[1] which is
-        the current y-value.
         """
-        self.target_y = self.current_state[1]
         return self.current_state
 
 
     def step(self, action):
         """
-        Move one iteration forward in simulation.
+        Move one iteration forward by sending action to robot via ROS.
         """
         if action[0] < 0:   # Only allow forward direction
             action[0] = 0
@@ -91,30 +85,14 @@ class CircleEnvROS(CircleEnv):
                 dist=info['dist'], vel=info['vel'], kappa=self._model.kappa)
 
 
-    def reset(self):
-        """
-        Reset environment back to original state.
-        """
-        self._action = None
-        self._state = self.get_initial_state
-        observation = self._state_to_relative(self._state)
-
-        # Reset renderer if available
-        if self._renderer is not None:
-            self._renderer.reset()
-
-        return observation
-
-
     def odometry_callback(self, odom):
         """
         Callback function for odometry state updates.
         """
-        # Get state from localization module
         x = odom.pose.pose.position.x
         y = odom.pose.pose.position.y
         q = odom.pose.pose.orientation
-        rpy = euler_from_quaternion([q.x,q.y,q.z,q.w])
+        rpy = euler_from_quaternion([q.x, q.y, q.z, q.w])
         yaw = rpy[2]
         x_dot = odom.twist.twist.linear.x
         y_dot = odom.twist.twist.linear.y
