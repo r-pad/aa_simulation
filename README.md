@@ -20,8 +20,16 @@ This module depends on the following:
 
 * [rllab](https://github.com/rll/rllab)
 * [cpo](https://github.com/jachiam/cpo)
+* [ROS](https://www.ros.org/) (optional - see below)
 
 Clone this simulation repository inside rllab's root directory.
+
+Alternatively, training can be done with external simulations or directly in the real world using ROS. We use ROS Kinetic, and other versions of ROS are untested. It is also necessary to add the following lines after line 129 in the file ```rllab/algos/batch_polopt.py``` since pickling issues arise due to incompatibility between ROS and rllab:
+
+```
+params['algo'] = None
+params['env'] = None
+```
 
 ## Usage
 
