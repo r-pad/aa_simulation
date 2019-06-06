@@ -16,10 +16,9 @@ TODO:
 import argparse
 
 import joblib
-import numpy as np
-
 import lasagne.init as LI
 import lasagne.nonlinearities as LN
+import numpy as np
 
 from rllab.algos.trpo import TRPO
 from rllab.core.network import MLP
@@ -64,7 +63,7 @@ def run_task(vv, log_dir=None, exp_name=None):
 
     # Build policy and baseline networks
     # Note: Mean of policy network set to analytically computed values for
-    #       faster training (rough estimates for RL to finetune).
+    #       faster training (rough estimates for RL to fine-tune).
     if policy is None or baseline is None:
         wheelbase = 0.257
         target_velocity = vv['target_velocity']
@@ -108,7 +107,6 @@ def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--network', type=str,
             help='Path to snapshot file of pre-trained network')
-    parser.set_defaults(use_ros=False)
     args = parser.parse_args()
     return args
 
@@ -149,3 +147,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+

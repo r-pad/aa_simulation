@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-@author: Edward Ahn
+@author: edwardahn
 
 Environment for training a local planner to move in a straight line.
 """

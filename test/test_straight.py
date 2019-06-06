@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 """
-@author: Edward Ahn
+@author: edwardahn
 
 Test performance of straight line with different projections.
 """
