@@ -75,6 +75,7 @@ class StraightEnvROS(StraightEnv):
         # Wait for next state reading
         while self._action_published:
             continue
+        nextstate = self.current_state
         next_observation = self._state_to_observation(nextstate)
         self._state = nextstate
 
