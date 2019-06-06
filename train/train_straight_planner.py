@@ -41,11 +41,19 @@ def run_task(vv, log_dir=None, exp_name=None):
     global baseline
 
     # Load environment
-    env = StraightEnv(
-        target_velocity=vv['target_velocity'],
-        dt=vv['dt'],
-        model_type=vv['model_type']
-    )
+    if not vv['use_ros']:
+        env = StraightEnv(
+            target_velocity=vv['target_velocity'],
+            dt=vv['dt'],
+            model_type=vv['model_type']
+        )
+    else:
+        from aa_simulation.envs.straight_env_ros import StraightEnvROS
+        env = StraightEnvROS(
+            target_velocity=vv['target_velocity'],
+            dt=vv['dt'],
+            model_type=vv['model_type']
+        )
 
     # Save variant information for comparison plots
     variant_file = logger.get_snapshot_dir() + '/variant.json'
@@ -113,11 +121,13 @@ def main():
 
     # Set up multiple experiments at once
     vg = VariantGenerator()
+    use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
     vg.add('target_velocity', [0.7, 1.5, 2.0, 2.5, 3.0])
     vg.add('dt', [0.1])
     vg.add('model_type', ['BrushTireModel'])
+    vg.add('use_ros', [use_ros])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant
