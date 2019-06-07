@@ -5,12 +5,6 @@
 
 Train local planner using TRPO so that a vehicle can follow a
 straight line.
-
------------------------------------------------------------------
-TODO:
- - allow fine-tuning and reset variance when doing so
- - set W_gain and init_std as functions of target velocity
------------------------------------------------------------------
 """
 
 import argparse
@@ -21,6 +15,8 @@ import lasagne.nonlinearities as LN
 import numpy as np
 
 from rllab.algos.trpo import TRPO
+from rllab.core.lasagne_layers import ParamLayer
+from rllab.core.lasagne_powered import LasagnePowered
 from rllab.core.network import MLP
 from rllab.envs.base import Env
 from rllab.misc import logger
@@ -67,8 +63,8 @@ def run_task(vv, log_dir=None, exp_name=None):
         target_steering = 0
         output_mean = np.array([target_velocity, target_steering])
         hidden_sizes = (32, 32)
-        W_gain = 0.1
-        init_std = 0.1
+        W_gain = target_velocity / 10
+        init_std = target_velocity / 10
         mean_network = MLP(
             input_shape=(env.spec.observation_space.flat_dim,),
             output_dim=env.spec.action_space.flat_dim,
@@ -85,6 +81,18 @@ def run_task(vv, log_dir=None, exp_name=None):
             mean_network=mean_network
         )
         baseline = LinearFeatureBaseline(env_spec=env.spec)
+
+    # Reset variance to re-enable exploration when using pre-trained networks
+    else:
+        init_std = target_velocity / 10
+        policy._l_log_std = ParamLayer(
+            policy._mean_network.input_layer,
+            num_units=env.spec.action_space.flat_dim,
+            param=LI.Constant(np.log(init_std)),
+            name='output_log_std',
+            trainable=True
+        )
+        LasagnePowered.__init__(policy, [policy._l_mean, policy._l_log_std])
 
     algo = TRPO(
         env=env,
@@ -124,7 +132,7 @@ def main():
     use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
-    vg.add('target_velocity', [0.7, 1.5, 2.0, 2.5, 3.0])
+    vg.add('target_velocity', [0.7])
     vg.add('dt', [0.1])
     vg.add('model_type', ['BrushTireModel'])
     vg.add('use_ros', [use_ros])
