@@ -11,6 +11,7 @@ import argparse
 
 import joblib
 import lasagne.init as LI
+import lasagne.layers as L
 import lasagne.nonlinearities as LN
 import numpy as np
 
@@ -19,7 +20,7 @@ from rllab.core.lasagne_layers import ParamLayer
 from rllab.core.lasagne_powered import LasagnePowered
 from rllab.core.network import MLP
 from rllab.envs.base import Env
-from rllab.misc import logger
+from rllab.misc import ext, logger
 from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
@@ -63,8 +64,15 @@ def run_task(vv, log_dir=None, exp_name=None):
         target_steering = 0
         output_mean = np.array([target_velocity, target_steering])
         hidden_sizes = (32, 32)
-        W_gain = target_velocity / 10
-        init_std = target_velocity / 10
+
+        # Constrain exploration by downsizing output W and variance, because
+        # the mean network will be initialized with analytically computed
+        # values. Because we are not scaling actions to an interval, it is
+        # difficult to define these variables as functions of the action. As
+        # a result, these values values are arbitrarily chosen.
+        W_gain = 0.1
+        init_std = 0.1
+
         mean_network = MLP(
             input_shape=(env.spec.observation_space.flat_dim,),
             output_dim=env.spec.action_space.flat_dim,
@@ -77,14 +85,19 @@ def run_task(vv, log_dir=None, exp_name=None):
         policy = GaussianMLPPolicy(
             env_spec=env.spec,
             hidden_sizes=(32, 32),
-            init_std = init_std,
+            init_std=init_std,
             mean_network=mean_network
         )
         baseline = LinearFeatureBaseline(env_spec=env.spec)
 
     # Reset variance to re-enable exploration when using pre-trained networks
     else:
-        init_std = target_velocity / 10
+
+        # Because we are not scaling actions to an interval, it is difficult to
+        # define the initial variance as a function of the action. As a result,
+        # this value was arbitrarily chosen.
+        init_std = 1
+
         policy._l_log_std = ParamLayer(
             policy._mean_network.input_layer,
             num_units=env.spec.action_space.flat_dim,
@@ -92,13 +105,20 @@ def run_task(vv, log_dir=None, exp_name=None):
             name='output_log_std',
             trainable=True
         )
+        obs_var = policy._mean_network.input_layer.input_var
+        mean_var, log_std_var = L.get_output([policy._l_mean, policy._l_log_std])
+        policy._log_std_var = log_std_var
         LasagnePowered.__init__(policy, [policy._l_mean, policy._l_log_std])
+        policy._f_dist = ext.compile_function(
+            inputs=[obs_var],
+            outputs=[mean_var, log_std_var]
+        )
 
     algo = TRPO(
         env=env,
         policy=policy,
         baseline=baseline,
-        batch_size=400,
+        batch_size=600,
         max_path_length=env.horizon,
         n_itr=600,
         discount=0.99,
@@ -132,7 +152,7 @@ def main():
     use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
-    vg.add('target_velocity', [0.7])
+    vg.add('target_velocity', [1.0])
     vg.add('dt', [0.1])
     vg.add('model_type', ['BrushTireModel'])
     vg.add('use_ros', [use_ros])
