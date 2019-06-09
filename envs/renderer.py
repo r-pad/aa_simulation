@@ -41,6 +41,8 @@ class _Renderer(object):
         # Show ideal trajectory
         if env_type == 'StraightEnv':
             plt.axhline(0, color='c', linestyle=':')
+            self._ax.set_xlim(-0.5, 10)
+            self._ax.set_ylim(-1.5, 1.5)
         elif env_type == 'CircleEnv':
             arc = patches.Arc((0, 0), 2, 2, 0, 0, 360, color='c', ls=':')
             self._ax.add_patch(arc)
