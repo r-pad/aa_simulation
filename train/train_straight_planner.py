@@ -37,19 +37,27 @@ def run_task(vv, log_dir=None, exp_name=None):
     global policy
     global baseline
 
+    # Check if variant is available
+    if vv['model_type'] not in ['BrushTireModel', 'LinearTireModel']:
+        raise ValueError('Unrecognized model type for simulating robot')
+    if vv['robot_type'] not in ['MRZR', 'RCCar']:
+        raise ValueError('Unrecognized robot type')
+
     # Load environment
     if not vv['use_ros']:
         env = StraightEnv(
             target_velocity=vv['target_velocity'],
             dt=vv['dt'],
-            model_type=vv['model_type']
+            model_type=vv['model_type'],
+            robot_type=vv['robot_type']
         )
     else:
         from aa_simulation.envs.straight_env_ros import StraightEnvROS
         env = StraightEnvROS(
             target_velocity=vv['target_velocity'],
             dt=vv['dt'],
-            model_type=vv['model_type']
+            model_type=vv['model_type'],
+            robot_type=vv['robot_type']
         )
 
     # Save variant information for comparison plots
@@ -148,13 +156,17 @@ def main():
         baseline = data['baseline']
 
     # Set up multiple experiments at once
+    #   Options for model_type: 'BrushTireModel', 'LinearTireModel'
+    #   Options for robot_type: 'MRZR', 'RCCar'
     vg = VariantGenerator()
+    robot_type = 'MRZR'
     use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
     vg.add('target_velocity', [1.0])
     vg.add('dt', [0.1])
     vg.add('model_type', ['BrushTireModel'])
+    vg.add('robot_type', [robot_type])
     vg.add('use_ros', [use_ros])
     print('Number of Configurations: ', len(vg.variants()))
 

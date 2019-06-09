@@ -27,7 +27,12 @@ class StraightEnvROS(StraightEnv):
         """
         Initialize super class parameters, obstacles and radius.
         """
-        super(StraightEnv, self).__init__(target_velocity, dt, model_type)
+        super(StraightEnv, self).__init__(
+            target_velocity=target_velocity,
+            dt=dt,
+            model_type=model_type,
+            robot_type=robot_type
+        )
 
         # Reward function parameters
         self._lambda1 = 0.25

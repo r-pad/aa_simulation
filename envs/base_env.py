@@ -29,13 +29,21 @@ class VehicleEnv(Env):
     _HORIZON_LENGTH = 100
 
 
-    def __init__(self, target_velocity, dt, model_type):
+    def __init__(self, target_velocity, dt, model_type, robot_type):
         """
         Initialize environment parameters.
         """
-        # Instantiate vehicle model and interpret parameters
-        stream = open('aa_simulation/envs/model_params.yaml', 'r')
-        self._params = yaml.load(stream)
+        # Load estimated parameters for robot
+        if robot_type == 'RCCar':
+            stream = open('aa_simulation/envs/model_params/rccar.yml', 'r')
+            self._params = yaml.load(stream, Loader=yaml.FullLoader)
+        elif robot_type == 'MRZR':
+            stream = open('aa_simulation/envs/model_params/mrzr.yml', 'r')
+            self._params = yaml.load(stream, Loader=yaml.FullLoader)
+        else:
+            raise ValueError('Unrecognized robot type')
+
+        # Instantiate vehicle model for simulation
         self._action = None
         self.target_velocity = target_velocity
         if model_type == 'BrushTireModel':
