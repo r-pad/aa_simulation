@@ -55,20 +55,20 @@ def plot_curve(data, name, units):
             transform=plt.gca().transAxes)
 
 
-def plot_distribution(error, name, units):
+def plot_distribution(data, name, units):
     """
-    Plot histogram showing distribution of error.
+    Plot histogram showing distribution of data.
     """
-    mean = error.mean()
-    std = error.std()
-    maximum = error.max()
-    minimum = error.min()
+    mean = data.mean()
+    std = data.std()
+    maximum = data.max()
+    minimum = data.min()
     stats = 'Mean = %.5f\nStd = %.5f\nMax = %.5f\nMin = %.5f' % \
             (mean, std, maximum, minimum)
-    title = 'Distribution of %s Errors in Final Policy' % name
+    title = 'Distribution of %s in Final Policy' % name
 
     plt.figure()
-    plt.hist(error)
+    plt.hist(data)
     plt.title(title)
     plt.xlabel('Error (%s)' % units)
     plt.ylabel('Number of Time Steps')
