@@ -17,13 +17,16 @@ import argparse
 
 import joblib
 import lasagne.init as LI
+import lasagne.layers as L
 import lasagne.nonlinearities as LN
 import numpy as np
 
 from rllab.algos.trpo import TRPO
+from rllab.core.lasagne_layers import ParamLayer
+from rllab.core.lasagne_powered import LasagnePowered
 from rllab.core.network import MLP
 from rllab.envs.base import Env
-from rllab.misc import logger
+from rllab.misc import ext, logger
 from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
@@ -40,13 +43,20 @@ def run_task(vv, log_dir=None, exp_name=None):
     global policy
     global baseline
 
+    # Check if variant is available
+    if vv['model_type'] not in ['BrushTireModel', 'LinearTireModel']:
+        raise ValueError('Unrecognized model type for simulating robot')
+    if vv['robot_type'] not in ['MRZR', 'RCCar']:
+        raise ValueError('Unrecognized robot type')
+
     # Load environment
     if not vv['use_ros']:
         env = CircleEnv(
             target_velocity=vv['target_velocity'],
             radius=vv['radius'],
             dt=vv['dt'],
-            model_type=vv['model_type']
+            model_type=vv['model_type'],
+            robot_type=vv['robot_type']
         )
     else:
         from aa_simulation.envs.circle_env_ros import CircleEnvROS
@@ -54,7 +64,8 @@ def run_task(vv, log_dir=None, exp_name=None):
             target_velocity=vv['target_velocity'],
             radius=vv['radius'],
             dt=vv['dt'],
-            model_type=vv['model_type']
+            model_type=vv['model_type'],
+            robot_type=vv['robot_type']
         )
 
     # Save variant information for comparison plots
@@ -70,8 +81,15 @@ def run_task(vv, log_dir=None, exp_name=None):
         target_steering = np.arctan(wheelbase / vv['radius'])  # CCW
         output_mean = np.array([target_velocity, target_steering])
         hidden_sizes = (32, 32)
+
+        # Constrain exploration by downsizing output W and variance, because
+        # the mean network will be initialized with analytically computed
+        # values. Because we are not scaling actions to an interval, it is
+        # difficult to define these variables as functions of the action. As
+        # a result, these valeus are arbitrarily chosen.
         W_gain = 0.1
         init_std = 0.1
+
         mean_network = MLP(
             input_shape=(env.spec.observation_space.flat_dim,),
             output_dim=env.spec.action_space.flat_dim,
@@ -88,6 +106,30 @@ def run_task(vv, log_dir=None, exp_name=None):
             mean_network=mean_network
         )
         baseline = LinearFeatureBaseline(env_spec=env.spec)
+
+    # Reset variance to re-enable exploration when using pre-trained networks
+    else:
+
+        # Because we are not scaling actions to an interval, it is difficult to
+        # define the initial variance as a function of the action. As a result,
+        # this value was arbitrarily chosen.
+        init_std = 1
+
+        policy._l_log_std = ParamLayer(
+            policy._mean_network.input_layer,
+            num_units=env.spec.action_space.flat_dim,
+            param=LI.Constant(np.log(init_std)),
+            name='output_log_std',
+            trainable=True
+        )
+        obs_var = policy._mean_network.input_layer.input_var
+        mean_var, log_std_var = L.get_output([policy._l_mean, policy._l_log_std])
+        policy._log_std_var = log_std_var
+        LasagnePowered.__init__(policy, [policy._l_mean, policy._l_log_std])
+        policy._f_dist = ext.compile_function(
+            inputs=[obs_var],
+            outputs=[mean_var, log_std_var]
+        )
 
     algo = TRPO(
         env=env,
@@ -123,7 +165,10 @@ def main():
         baseline = data['baseline']
 
     # Set up multiple experiments at once
+    #   Options for model_type: 'BrushTireModel', 'LinearTireModel'
+    #   Options for robot_type: 'MRZR', 'RCCar'
     vg = VariantGenerator()
+    robot_type = 'MRZR'
     use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
@@ -131,6 +176,7 @@ def main():
     vg.add('radius', [1.0])
     vg.add('dt', [0.03])
     vg.add('model_type', ['BrushTireModel'])
+    vg.add('robot_type', [robot_type])
     vg.add('use_ros', [use_ros])
     print('Number of Configurations: ', len(vg.variants()))
 

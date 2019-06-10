@@ -29,7 +29,7 @@ class CircleEnvROS(CircleEnv):
     arc trajectory using relative coordinates with ROS.
     """
 
-    def __init__(self, target_velocity, radius, dt, model_type):
+    def __init__(self, target_velocity, radius, dt, model_type, robot_type):
         """
         Initialize super class parameters, obstacles and radius.
         """
@@ -37,7 +37,8 @@ class CircleEnvROS(CircleEnv):
             target_velocity=target_velocity,
             dt=dt,
             radius=radius,
-            model_type=model_type
+            model_type=model_type,
+            robot_type=robot_type
         )
 
         # Initialize nodes and set up ROS topics
