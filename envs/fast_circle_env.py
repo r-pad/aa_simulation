@@ -4,6 +4,13 @@
 @author: edwardahn
 
 Environment for training local planner to follow circles as fast as possible.
+
+----------------------------------------------------------------------
+TODO:
+    - Implement get_reward() function
+    - Remove np.square
+    - Write code that follows structure to circle and straight envs
+----------------------------------------------------------------------
 """
 
 import csv

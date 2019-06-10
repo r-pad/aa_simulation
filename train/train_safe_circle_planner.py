@@ -5,6 +5,11 @@
 
 Train local planner using TRPO so that a vehicle can follow a circular
 trajectory with an arbitrary curvature.
+
+------------------------------------------------------------
+TODO:
+    - reset variance for fine-tuning
+------------------------------------------------------------
 """
 
 import argparse
