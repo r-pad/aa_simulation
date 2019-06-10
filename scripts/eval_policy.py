@@ -55,20 +55,6 @@ def plot_curve(data, name, units):
             transform=plt.gca().transAxes)
 
 
-def plot_error_curve(error, name, units):
-    """
-    Plot error over time.
-    """
-    title = '%s Error over Time in Final Policy' % name
-
-    plt.figure()
-    t = np.arange(error.size)
-    plt.plot(t, error)
-    plt.title(title)
-    plt.xlabel('Time steps')
-    plt.ylabel('Error (%s)' % units)
-
-
 def plot_distribution(error, name, units):
     """
     Plot histogram showing distribution of error.
@@ -138,8 +124,8 @@ def main():
     plot_curve(actions[:, 0][skip:], 'Commanded Speed', 'm/s')
     plot_curve(actions[:, 1][skip:], 'Commanded Steering Angle', 'rad')
     plot_curve(path['env_infos']['kappa'][skip:], 'Wheel Slip', 'kappa')
-    plot_error_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
-    plot_error_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
+    plot_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
+    plot_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
     plot_distribution(path['env_infos']['dist'][skip:], 'Distance', 'm')
     plot_distribution(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
     plt.show()
