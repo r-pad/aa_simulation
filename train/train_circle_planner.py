@@ -5,12 +5,6 @@
 
 Train local planner using TRPO so that a vehicle can follow a circular
 trajectory with an arbitrary curvature.
-
-----------------------------------------------------------------
-TODO:
- - reset variance for fine-tuning
- - set W_gain and init_std as functions of target velocity
-----------------------------------------------------------------
 """
 
 import argparse
@@ -72,6 +66,13 @@ def run_task(vv, log_dir=None, exp_name=None):
     variant_file = logger.get_snapshot_dir() + '/variant.json'
     logger.log_variant(variant_file, vv)
 
+    # Set variance for each action component separately for exploration
+    # Note: We set the variance manually because we are not scaling our
+    #       action space during training.
+    init_std_speed = vv['target_velocity']
+    init_std_steer = np.pi / 6
+    init_std = [init_std_speed, init_std_steer]
+
     # Build policy and baseline networks
     # Note: Mean of policy network set to analytically computed values for
     #       faster training (rough estimates for RL to fine-tune).
@@ -82,13 +83,10 @@ def run_task(vv, log_dir=None, exp_name=None):
         output_mean = np.array([target_velocity, target_steering])
         hidden_sizes = (32, 32)
 
-        # Constrain exploration by downsizing output W and variance, because
-        # the mean network will be initialized with analytically computed
-        # values. Because we are not scaling actions to an interval, it is
-        # difficult to define these variables as functions of the action. As
-        # a result, these valeus are arbitrarily chosen.
-        W_gain = 0.1
-        init_std = 0.1
+        # In mean network, allow output b values to dominate final output
+        # value by constraining the magnitude of the output W matrix. This is
+        # to allow faster learning. These numbers are arbitrarily chosen.
+        W_gain = min(vv['target_velocity'] / 5, np.pi / 15)
 
         mean_network = MLP(
             input_shape=(env.spec.observation_space.flat_dim,),
@@ -109,12 +107,6 @@ def run_task(vv, log_dir=None, exp_name=None):
 
     # Reset variance to re-enable exploration when using pre-trained networks
     else:
-
-        # Because we are not scaling actions to an interval, it is difficult to
-        # define the initial variance as a function of the action. As a result,
-        # this value was arbitrarily chosen.
-        init_std = 1
-
         policy._l_log_std = ParamLayer(
             policy._mean_network.input_layer,
             num_units=env.spec.action_space.flat_dim,
@@ -168,7 +160,7 @@ def main():
     #   Options for model_type: 'BrushTireModel', 'LinearTireModel'
     #   Options for robot_type: 'MRZR', 'RCCar'
     vg = VariantGenerator()
-    robot_type = 'MRZR'
+    robot_type = 'RCCar'
     use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
