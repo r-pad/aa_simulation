@@ -101,17 +101,16 @@ class StraightEnv(VehicleEnv):
         """
         Reward function definition.
         """
-        x, y, _, x_dot, y_dot, _ = state
-        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-        vel_diff = velocity - self.target_velocity
+        _, y, _, x_dot, y_dot, _ = state
+        velocity = np.sqrt(x_dot**2 + y_dot**2)
         distance = y
 
         reward = -np.absolute(distance)
-        reward -= self._lambda1 * np.square(vel_diff)
+        reward -= self._lambda1 * (velocity - self.target_velocity)**2
 
         info = {}
         info['dist'] = distance
-        info['vel'] = vel_diff
+        info['vel'] = velocity
         return reward, info
 
 
@@ -133,7 +132,7 @@ class StraightEnv(VehicleEnv):
 
         current_angle = np.arctan2((y - y0), (x - x0))
         projected_angle = normalize_angle(current_angle - angle)
-        dist = np.sqrt(np.square(x - x0) + np.square(y - y0))
+        dist = np.sqrt((x - x0)**2 + (y - y0)**2)
 
         new_x = dist * np.cos(projected_angle)
         new_y = dist * np.sin(projected_angle)

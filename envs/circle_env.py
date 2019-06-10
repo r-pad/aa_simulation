@@ -104,19 +104,18 @@ class CircleEnv(VehicleEnv):
         observation = self._state_to_relative(state)
         r = self.radius
         x, y, _, x_dot, y_dot, _ = state
-        dx, dth, dx_dot, dth_dot = observation
-        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-        vel_diff = velocity - self.target_velocity
-        distance = r - np.sqrt(x**2 + y**2)
+        dx, theta, _, _ = observation
+        velocity = np.sqrt(x_dot**2 + y_dot**2)
+        distance = dx
 
         reward = -np.abs(distance)
-        reward -= self._lambda1 * vel_diff**2
-        reward -= self._lambda2 * max(0, abs(dth) - np.pi/2)**2
+        reward -= self._lambda1 * (velocity - self.target_velocity)**2
+        reward -= self._lambda2 * max(0, abs(theta) - np.pi/2)**2
 
         info = {}
         info['observation'] = observation
         info['dist'] = distance
-        info['vel'] = vel_diff
+        info['vel'] = velocity
         return reward, info
 
 
@@ -128,7 +127,7 @@ class CircleEnv(VehicleEnv):
         r = self.radius
         x, y, yaw, x_dot, y_dot, yaw_dot = state
 
-        dx = np.sqrt(np.square(x) + np.square(y)) - r
+        dx = np.sqrt(x**2 + y**2) - r
         theta = normalize_angle(np.arctan2(-x, y) + np.pi - yaw)
         ddx = x/(x**2 + y**2)**0.5*x_dot + y/(x**2 + y**2)**0.5*y_dot
         dtheta = x/(x**2 + y**2)*x_dot - y/(x**2 + y**2)*y_dot - yaw_dot

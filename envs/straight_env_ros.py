@@ -94,17 +94,16 @@ class StraightEnvROS(StraightEnv):
         """
         Reward function definition.
         """
-        x, y, _, x_dot, y_dot, _ = state
-        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
-        vel_diff = velocity - self.target_velocity
+        _, y, _, x_dot, y_dot, _ = state
+        velocity = np.sqrt(x_dot**2 + y_dot**2)
         distance = y - self.target_y
 
         reward = -np.absolute(distance)
-        reward -= self._lambda1 * np.square(vel_diff)
+        reward -= self._lambda1 * (velocity - self.target_velocity)**2
 
         info = {}
         info['dist'] = distance
-        info['vel'] = vel_diff
+        info['vel'] = velocity
         return reward, info
 
     def odometry_callback(self, odom):

@@ -135,10 +135,10 @@ class VehicleEnv(Env):
         if log_kappa:
             kappas = np.abs(kappas)
 
-        logger.record_tabular('AverageAbsDistanceError', np.mean(dists))
-        logger.record_tabular('AverageAbsVelocityError', np.mean(vels))
-        logger.record_tabular('MaxAbsDistanceError', np.max(dists))
-        logger.record_tabular('MaxAbsVelocityError', np.max(vels))
+        logger.record_tabular('AverageAbsDistance', np.mean(dists))
+        logger.record_tabular('AverageAbsVelocity', np.mean(vels))
+        logger.record_tabular('MaxAbsDistance', np.max(dists))
+        logger.record_tabular('MaxAbsVelocity', np.max(vels))
         if log_kappa:
             logger.record_tabular('AverageKappa', np.mean(kappas))
             logger.record_tabular('MaxKappa', np.max(kappas))
