@@ -69,6 +69,8 @@ class StraightEnvROS(StraightEnv):
         Move one iteration forward by sending action to robot via ROS.
         """
         self._action = action
+        if action[0] < 0:   # Only allow forward direction
+            action[0] = 0
 
         # Publish action via ROS
         msg = ackermann_msgs.msg.AckermannDriveStamped()

@@ -72,6 +72,8 @@ class StraightEnv(VehicleEnv):
         """
         # Get next state from dynamics equations
         self._action = action
+        if action[0] < 0:   # Only allow forward direction
+            action[0] = 0
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)
         self._state = nextstate
