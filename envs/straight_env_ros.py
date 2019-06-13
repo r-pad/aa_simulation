@@ -25,7 +25,7 @@ class StraightEnvROS(StraightEnv):
 
     def __init__(self, target_velocity, dt, model_type):
         """
-        Initialize super class parameters, obstacles and radius.
+        Initialize super class, parameters, ROS-related modules.
         """
         super(StraightEnv, self).__init__(
             target_velocity=target_velocity,

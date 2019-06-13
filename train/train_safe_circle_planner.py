@@ -3,8 +3,9 @@
 """
 @author: edwardahn
 
-Train local planner using TRPO so that a vehicle can follow a circular
-trajectory with an arbitrary curvature.
+Train local planner using CPO so that a vehicle can follow a circular
+trajectory with an arbitrary curvature as fast as possible within
+an epsilon distance away from the trajectory.
 
 ------------------------------------------------------------
 TODO:
@@ -20,7 +21,6 @@ import numpy as np
 import lasagne.init as LI
 import lasagne.nonlinearities as LN
 
-from rllab.algos.trpo import TRPO
 from rllab.core.network import MLP
 from rllab.envs.base import Env
 from rllab.misc import logger

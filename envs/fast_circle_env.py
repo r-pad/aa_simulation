@@ -13,15 +13,11 @@ TODO:
 ----------------------------------------------------------------------
 """
 
-import csv
-
 import numpy as np
 
 from rllab.envs.base import Step
-from rllab.spaces import Box
 
 from aa_simulation.envs.circle_env import CircleEnv
-from aa_simulation.misc.utils import normalize_angle
 
 
 class FastCircleEnv(CircleEnv):
