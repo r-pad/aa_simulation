@@ -32,6 +32,7 @@ class StraightEnv(VehicleEnv):
             model_type=model_type,
             robot_type=robot_type
         )
+        self.robot_type = robot_type
 
         # Reward function parameters
         self._lambda1 = 0.25
@@ -50,12 +51,21 @@ class StraightEnv(VehicleEnv):
         """
         Get initial state of car when simulation is reset.
         """
-        # Compute domain randomized variables
-        y = np.random.uniform(-0.25, 0.25)
-        yaw = np.random.uniform(-np.pi/3, np.pi/3)
-        x_dot = np.random.uniform(0, 1.3)
-        y_dot = np.random.uniform(-0.6, 0.6)
-        yaw_dot = np.random.uniform(-2.0, 2.0)
+        # Randomly initialize state for better learning
+        if self.robot_type == 'RCCar':
+            y = np.random.uniform(-0.25, 0.25)
+            yaw = np.random.uniform(-np.pi/3, np.pi/3)
+            x_dot = np.random.uniform(0, 1.3)
+            y_dot = np.random.uniform(-0.6, 0.6)
+            yaw_dot = np.random.uniform(-2.0, 2.0)
+        elif self.robot_type == 'MRZR':
+            y = np.random.uniform(-0.25, 0.25)
+            yaw = np.random.uniform(-np.pi/3, np.pi/3)
+            x_dot = np.random.uniform(0, 2.0)
+            y_dot = np.random.uniform(-0.6, 0.6)
+            yaw_dot = np.random.uniform(-0.3, 0.3)
+        else:
+            raise ValueError('Unrecognized robot type')
 
         state = np.zeros(6)
         state[1] = y
