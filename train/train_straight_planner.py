@@ -67,7 +67,7 @@ def run_task(vv, log_dir=None, exp_name=None):
     # Set variance for each action component separately for exploration
     # Note: We set the variance manually because we are not scaling our
     #       action space during training.
-    init_std_speed = vv['target_velocity']
+    init_std_speed = vv['target_velocity'] / 4
     init_std_steer = np.pi / 6
     init_std = [init_std_speed, init_std_steer]
 
