@@ -177,7 +177,7 @@ def main():
         run_experiment_lite(
             stub_method_call=run_task,
             variant=vv,
-            n_parallel=len(seeds),
+            n_parallel=4,
             snapshot_mode='last',
             seed=vv['seed']
         )
