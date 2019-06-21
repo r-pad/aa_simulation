@@ -64,7 +64,7 @@ class DynamicBicycleModel(object):
         """
         pos_x = X[0]
         pos_y = X[1]
-        pos_yaw = DynamicBicycleModel.wraptopi(X[2]);
+        pos_yaw = DynamicBicycleModel.wraptopi(X[2])
         v_x = X[3]
         v_y = X[4]
         yaw_rate = X[5]
@@ -72,7 +72,7 @@ class DynamicBicycleModel(object):
         delta = U[1]
 
         # Tire slip angle (zero when stationary)
-        if np.abs(v_x) < 0.01 and np.abs(v_x) < 0.01:
+        if np.abs(v_x) < 0.01 and np.abs(v_y) < 0.01:
             alpha_f = 0
             alpha_r = 0
         else:
@@ -134,7 +134,7 @@ class DynamicBicycleModel(object):
         Wrap radian value to the interval [-pi, pi].
         """
         pi = np.pi
-        val = val - 2*pi*np.floor((val+pi)/(2*pi));
+        val = val - 2*pi*np.floor((val+pi)/(2*pi))
         return val
 
 
@@ -203,7 +203,7 @@ class BrushTireModel(DynamicBicycleModel):
             Fy = 0
             return Fx, Fy
         else:
-            K = (wheel_vx-v_x)/np.abs(v_x);
+            K = (wheel_vx-v_x)/np.abs(v_x)
         self.kappa = K
 
         # Instead of avoiding -1, now look for positive equivalent
@@ -211,7 +211,7 @@ class BrushTireModel(DynamicBicycleModel):
             spin_dir = -1
             K = np.abs(K)
         else:
-            spin_dir = 1;
+            spin_dir = 1
 
         # alpha > pi/2 is invalid because of the use of tan(). Since
         # alpha > pi/2 means vehicle moving backwards, Fy's sign has
