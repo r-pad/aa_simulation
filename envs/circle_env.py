@@ -130,7 +130,7 @@ class CircleEnv(VehicleEnv):
         dx = np.sqrt(x**2 + y**2) - r
         theta = normalize_angle(np.arctan2(-x, y) + np.pi - yaw)
         ddx = x/(x**2 + y**2)**0.5*x_dot + y/(x**2 + y**2)**0.5*y_dot
-        dtheta = x/(x**2 + y**2)*x_dot - y/(x**2 + y**2)*y_dot - yaw_dot
+        dtheta = -y/(x**2 + y**2)*x_dot + x/(x**2 + y**2)*y_dot - yaw_dot
 
         # May want to rescale/normalize values to each other.
         return np.array([dx, theta, ddx, dtheta])
