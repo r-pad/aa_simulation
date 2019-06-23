@@ -164,7 +164,7 @@ def main():
     use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
-    vg.add('target_velocity', [0.7])
+    vg.add('target_velocity', [1.0])
     vg.add('radius', [1.0])
     vg.add('dt', [0.03])
     vg.add('model_type', ['BrushTireModel'])
