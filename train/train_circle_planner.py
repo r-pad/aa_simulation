@@ -4,7 +4,7 @@
 @author: edwardahn
 
 Train local planner using TRPO so that a vehicle can follow a circular
-trajectory with an arbitrary curvature.
+trajectory with a specified curvature at a specified target velocity.
 """
 
 import argparse
@@ -155,21 +155,32 @@ def main():
         data = joblib.load(args.network)
         policy = data['policy']
         baseline = data['baseline']
+        use_pretrained = True
+    else:
+        use_pretrained = False
 
     # Set up multiple experiments at once
+    vg = VariantGenerator()
+
+    # Non-configurable parameters (do not change)
+    vg.add('trajectory', ['Circle'])
+    vg.add('objective', ['TargetVelocity'])
+    vg.add('algo', ['TRPO'])
+
+    # Configurable parameters
     #   Options for model_type: 'BrushTireModel', 'LinearTireModel'
     #   Options for robot_type: 'MRZR', 'RCCar'
-    vg = VariantGenerator()
     robot_type = 'RCCar'
     use_ros = False
     seeds = [100, 200]
     vg.add('seed', seeds)
     vg.add('target_velocity', [1.0])
     vg.add('radius', [1.0])
-    vg.add('dt', [0.03])
+    vg.add('dt', [0.1])
     vg.add('model_type', ['BrushTireModel'])
     vg.add('robot_type', [robot_type])
     vg.add('use_ros', [use_ros])
+    vg.add('pretrained', [use_pretrained])
     print('Number of Configurations: ', len(vg.variants()))
 
     # Run each experiment variant

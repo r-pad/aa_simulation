@@ -10,6 +10,7 @@ an epsilon distance away from the trajectory.
 ------------------------------------------------------------
 TODO:
     - reset variance for fine-tuning
+    - make variants the same as circle/straight planner.py
 ------------------------------------------------------------
 """
 
@@ -45,12 +46,19 @@ def run_task(vv, log_dir=None, exp_name=None):
     trpo_stepsize = 0.01
     trpo_subsample_factor = 0.2
 
+    # Check if variant is available
+    if vv['model_type'] not in ['BrushTireModel', 'LinearTireModel']:
+        raise ValueError('Unrecognized model type for simulating robot')
+    if vv['robot_type'] not in ['MRZR', 'RCCar']:
+        raise ValueError('Unrecognized robot type')
+
     # Load environment
     env = FastCircleEnv(
         target_velocity=vv['target_velocity'],
         radius=vv['radius'],
         dt=vv['dt'],
-        model_type=vv['model_type']
+        model_type=vv['model_type'],
+        robot_type=vv['robot_type']
     )
 
     # Save variant information for comparison plots
@@ -139,18 +147,29 @@ def main():
     else:
         use_pretrained = False
 
-    # Set up multiple experiments at once
+    # Run multiple experiment variants at once
+    vg = VariantGenerator()
+
+    # Non-configurable parameters (do not change)
+    vg.add('trajectory', ['Circle'])
+    vg.add('objective', ['Fast'])
+    vg.add('algo', ['CPO'])
+
+    # Configurable parameters
+    #   Options for model_type: 'BrushTireModel', 'LinearTireModel'
+    #   Options for robot_type: 'MRZR', 'RCCar'
     # Note: There is no notion of a target velocity in CPO, but it does
     #       control the distribution of the initial state. See the function
     #       get_initial_state() in envs/circle_env.py for more information.
-    vg = VariantGenerator()
-    seeds = [100, 200, 300, 400]
+    robot_type = 'RCCar'
+    seeds = [100, 200]
     vg.add('seed', seeds)
-    vg.add('target_velocity', [0.7])
+    vg.add('target_velocity', [1.0])
     vg.add('radius', [1.0])
-    vg.add('dt', [0.03, 0.1])
-    vg.add('eps', [0.5, 1.0])
+    vg.add('dt', [0.1])
+    vg.add('eps', [0.5])
     vg.add('model_type', ['BrushTireModel'])
+    vg.add('robot_type', [robot_type])
     vg.add('pretrained', [use_pretrained])
     print('Number of Configurations: ', len(vg.variants()))
 
@@ -159,7 +178,7 @@ def main():
         run_experiment_lite(
             stub_method_call=run_task,
             variant=vv,
-            n_parallel=len(seeds),
+            n_parallel=4,
             snapshot_mode='last',
             seed=vv['seed']
         )

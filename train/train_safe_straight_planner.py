@@ -162,11 +162,20 @@ def main():
     else:
         use_pretrained = False
 
-    # Set up multiple experiments at once
+    # Run multiple experiment variants at once
     vg = VariantGenerator()
-    robot_type = 'MRZR'
+
+    # Non-configurable parameters (do not change)
+    vg.add('trajectory', ['Straight'])
+    vg.add('objective', ['TargetVelocity'])
+    vg.add('algo', ['CPO'])
+
+    # Configurable parameters
+    #   Options for model_type: 'BrushTireModel', 'LinearTireModel'
+    #   Options for robot_type: 'MRZR', 'RCCar'
+    seeds = [100, 200]
+    robot_type = 'RCCar'
     use_ros = False
-    seeds = [100]
     vg.add('seed', seeds)
     vg.add('target_velocity', [1.0])
     vg.add('dt', [0.1])
