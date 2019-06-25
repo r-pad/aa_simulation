@@ -31,7 +31,7 @@ from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.cpo.algos.safe.cpo import CPO
 from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
-from aa_simulation.envs.fast_circle_env import FastCircleEnv
+from aa_simulation.envs.circle.fast_circle_env import FastCircleEnv
 from aa_simulation.safety_constraints.circle import CircleSafetyConstraint
 
 # Pre-trained policy and baseline
@@ -160,7 +160,8 @@ def main():
     #   Options for robot_type: 'MRZR', 'RCCar'
     # Note: There is no notion of a target velocity in CPO, but it does
     #       control the distribution of the initial state. See the function
-    #       get_initial_state() in envs/circle_env.py for more information.
+    #       get_initial_state() in envs/circle/circle_env.py for more
+    #       information.
     robot_type = 'RCCar'
     seeds = [100, 200]
     vg.add('seed', seeds)

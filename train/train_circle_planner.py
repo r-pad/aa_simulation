@@ -26,7 +26,7 @@ from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
-from aa_simulation.envs.circle_env import CircleEnv
+from aa_simulation.envs.circle.circle_env import CircleEnv
 
 # Pre-trained policy and baseline
 policy = None
@@ -53,7 +53,7 @@ def run_task(vv, log_dir=None, exp_name=None):
             robot_type=vv['robot_type']
         )
     else:
-        from aa_simulation.envs.circle_env_ros import CircleEnvROS
+        from aa_simulation.envs.circle.circle_env_ros import CircleEnvROS
         env = CircleEnvROS(
             target_velocity=vv['target_velocity'],
             radius=vv['radius'],

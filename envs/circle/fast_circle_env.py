@@ -17,7 +17,7 @@ import numpy as np
 
 from rllab.envs.base import Step
 
-from aa_simulation.envs.circle_env import CircleEnv
+from aa_simulation.envs.circle.circle_env import CircleEnv
 
 
 class FastCircleEnv(CircleEnv):
@@ -26,7 +26,7 @@ class FastCircleEnv(CircleEnv):
     arc trajectory using relative coordinates as fast as possible.
     """
 
-    def __init__(self, target_velocity, radius, dt, model_type):
+    def __init__(self, target_velocity, radius, dt, model_type, robot_type):
         """
         Initialize super class parameters, obstacles and radius.
         """
@@ -34,7 +34,8 @@ class FastCircleEnv(CircleEnv):
             target_velocity=target_velocity,
             radius=radius,
             dt=dt,
-            model_type=model_type
+            model_type=model_type,
+            robot_type=robot_type
         )
 
 

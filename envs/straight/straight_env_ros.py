@@ -13,7 +13,7 @@ import rospy
 
 from rllab.envs.base import Step
 
-from aa_simulation.envs.straight_env import StraightEnv
+from aa_simulation.envs.straight.straight_env import StraightEnv
 from aa_simulation.misc.transformations import euler_from_quaternion
 from aa_simulation.misc.utils import rotate_state, translate_state
 

@@ -14,7 +14,7 @@ from rllab.envs.base import Env
 from rllab.misc import logger
 from rllab.spaces import Box
 
-from aa_simulation.envs.model import BrushTireModel, LinearTireModel
+from aa_simulation.envs.model.model import BrushTireModel, LinearTireModel
 from aa_simulation.envs.renderer import _Renderer
 
 
@@ -35,10 +35,10 @@ class VehicleEnv(Env):
         """
         # Load estimated parameters for robot
         if robot_type == 'RCCar':
-            stream = open('aa_simulation/envs/model_params/rccar.yml', 'r')
+            stream = open('aa_simulation/envs/model/model_params/rccar.yml','r')
             self._params = yaml.load(stream, Loader=yaml.FullLoader)
         elif robot_type == 'MRZR':
-            stream = open('aa_simulation/envs/model_params/mrzr.yml', 'r')
+            stream = open('aa_simulation/envs/model/model_params/mrzr.yml','r')
             self._params = yaml.load(stream, Loader=yaml.FullLoader)
         else:
             raise ValueError('Unrecognized robot type')

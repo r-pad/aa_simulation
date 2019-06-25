@@ -29,7 +29,7 @@ from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.cpo.algos.safe.cpo import CPO
 from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
-from aa_simulation.envs.straight_env import StraightEnv
+from aa_simulation.envs.straight.straight_env import StraightEnv
 from aa_simulation.safety_constraints.straight import StraightSafetyConstraint
 
 # Pre-trained policy and baseline
@@ -58,7 +58,7 @@ def run_task(vv, log_dir=None, exp_name=None):
             robot_type=vv['robot_type']
         )
     else:
-        from aa_simulation.envs.straight_env_ros import StraightEnvROS
+        from aa_simulation.envs.straight.straight_env_ros import StraightEnvROS
         env = StraightEnvROS(
             target_velocity=vv['target_velocity'],
             dt=vv['dt'],

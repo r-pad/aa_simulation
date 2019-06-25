@@ -19,7 +19,7 @@ import rospy
 
 from rllab.envs.base import Step
 
-from aa_simulation.envs.circle_env import CircleEnv
+from aa_simulation.envs.circle.circle_env import CircleEnv
 from aa_simulation.misc.transformations import euler_from_quaternion
 
 
