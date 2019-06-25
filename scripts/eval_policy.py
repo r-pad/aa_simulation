@@ -19,6 +19,9 @@ from rllab.sampler.utils import rollout
 
 from aa_simulation.envs.base_env import VehicleEnv
 
+# Toggle option for displaying plots
+show_plots = True
+
 
 def profile_code(profiler):
     """
@@ -41,6 +44,10 @@ def plot_curve(data, name, units):
     stats = 'Mean = %.5f\nStd = %.5f\nMax = %.5f\nMin = %.5f' % \
             (mean, std, maximum, minimum)
     title = '%s over Time in Final Policy' % name
+    print('Mean %s: %.5f' % (name, mean))
+
+    if not show_plots:
+        return
 
     plt.figure()
     t = np.arange(data.size)
@@ -67,6 +74,9 @@ def plot_distribution(data, name, units):
             (mean, std, maximum, minimum)
     title = 'Distribution of %s in Final Policy' % name
 
+    if not show_plots:
+        return
+
     plt.figure()
     plt.hist(data)
     plt.title(title)
@@ -90,44 +100,60 @@ def parse_arguments():
                         help='Speedup')
     parser.add_argument('--skip', type=int, default=0,
                         help='Number of iterations to skip at start')
+    parser.add_argument('--num_paths', type=int, default=1,
+                        help='Number of rollouts to collect and evaluate')
     parser.add_argument('--render', dest='render',
             action='store_true', help='Rendering')
     parser.add_argument('--no-render', dest='render',
             action='store_false', help='Rendering')
     parser.set_defaults(render=False)
+    parser.add_argument('--plots', dest='show_plots',
+            action='store_true', help='Show plots')
+    parser.add_argument('--no-plots', dest='show_plots',
+            action='store_false', help='Show plots')
+    parser.set_defaults(plots=True)
+    parser.add_argument('--profile', dest='profile_code',
+            action='store_true', help='Profile code that samples a rollout')
+    parser.add_argument('--no-profile', dest='profile_code',
+            action='store_false', help='Profile code that samples a rollout')
+    parser.set_defaults(profile_code=False)
     args = parser.parse_args()
     return args
 
 
 def main():
+    global show_plots
     args = parse_arguments()
     profiler = cProfile.Profile()
     data = joblib.load(args.file)
     skip = args.skip
     policy = data['policy']
     env = data['env']
-    plt.ion()
-
-    # Set fixed random seed
+    env._dt = 0.035                 # Set dt to empirically measured dt
     np.random.seed(args.seed)
+    show_plots = args.show_plots
 
-    # Sample one rollout
-    profiler.enable()
-    path = rollout(env, policy, max_path_length=args.max_path_length,
-                        animated=args.render, speedup=args.speedup,
-                        always_return_paths=True)
-    profiler.disable()
+    for run in range(args.num_paths):
 
-    # Policy analysis
-    profile_code(profiler)
-    actions = path['actions']
-    plot_curve(actions[:, 0][skip:], 'Commanded Speed', 'm/s')
-    plot_curve(actions[:, 1][skip:], 'Commanded Steering Angle', 'rad')
-    plot_curve(path['env_infos']['kappa'][skip:], 'Wheel Slip', 'kappa')
-    plot_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
-    plot_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
-    plot_distribution(path['env_infos']['dist'][skip:], 'Distance', 'm')
-    plot_distribution(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
+        profiler.enable()
+        path = rollout(env, policy, max_path_length=args.max_path_length,
+                            animated=args.render, speedup=args.speedup,
+                            always_return_paths=True)
+        profiler.disable()
+        if args.profile_code:
+            profile_code(profiler)
+
+        # Analyze rollout
+        actions = path['actions']
+        plot_curve(actions[:, 0][skip:], 'Commanded Speed', 'm/s')
+        plot_curve(actions[:, 1][skip:], 'Commanded Steering Angle', 'rad')
+        plot_curve(path['env_infos']['kappa'][skip:], 'Wheel Slip', 'kappa')
+        plot_curve(path['env_infos']['dist'][skip:], 'Distance', 'm')
+        plot_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
+        plot_distribution(path['env_infos']['dist'][skip:], 'Distance', 'm')
+        plot_distribution(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
+        print()
+
     plt.show()
 
     # Block until key is pressed
