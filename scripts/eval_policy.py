@@ -111,7 +111,7 @@ def parse_arguments():
             action='store_true', help='Show plots')
     parser.add_argument('--no-plots', dest='show_plots',
             action='store_false', help='Show plots')
-    parser.set_defaults(plots=True)
+    parser.set_defaults(show_plots=True)
     parser.add_argument('--profile', dest='profile_code',
             action='store_true', help='Profile code that samples a rollout')
     parser.add_argument('--no-profile', dest='profile_code',
@@ -132,6 +132,8 @@ def main():
     env._dt = 0.035                 # Set dt to empirically measured dt
     np.random.seed(args.seed)
     show_plots = args.show_plots
+    if show_plots:
+        plt.ion()
 
     for run in range(args.num_paths):
 
