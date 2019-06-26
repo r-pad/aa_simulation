@@ -22,6 +22,13 @@ from aa_simulation.envs.base_env import VehicleEnv
 # Toggle option for displaying plots
 show_plots = True
 
+# Statistics over multiple runs
+means_speed = []
+means_steer = []
+means_slip = []
+means_dist = []
+means_vel = []
+
 
 def profile_code(profiler):
     """
@@ -44,7 +51,6 @@ def plot_curve(data, name, units):
     stats = 'Mean = %.5f\nStd = %.5f\nMax = %.5f\nMin = %.5f' % \
             (mean, std, maximum, minimum)
     title = '%s over Time in Final Policy' % name
-    print('Mean %s: %.5f' % (name, mean))
 
     if not show_plots:
         return
@@ -123,6 +129,12 @@ def parse_arguments():
 
 def main():
     global show_plots
+    global means_speed
+    global means_steer
+    global means_slip
+    global means_dist
+    global means_vel
+
     args = parse_arguments()
     profiler = cProfile.Profile()
     data = joblib.load(args.file)
@@ -154,7 +166,28 @@ def main():
         plot_curve(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
         plot_distribution(path['env_infos']['dist'][skip:], 'Distance', 'm')
         plot_distribution(path['env_infos']['vel'][skip:], 'Velocity', 'm/s')
+
+        means_speed.append(actions[:, 0][skip:].mean())
+        means_steer.append(actions[:, 1][skip:].mean())
+        means_slip.append(path['env_infos']['kappa'][skip:].mean())
+        means_dist.append(path['env_infos']['dist'][skip:].mean())
+        means_vel.append(path['env_infos']['vel'][skip:].mean())
+
+    # Print statistics over multiple runs
+    if not args.profile_code:
         print()
+    means_speed = np.array(means_speed)
+    means_steer = np.array(means_steer)
+    means_slip = np.array(means_slip)
+    means_dist = np.array(means_dist)
+    means_vel = np.array(means_vel)
+    print('Averaged statistics over %d rollout(s):' % args.num_paths)
+    print('\tMean Commanded Speed: %.5f' % means_speed.mean())
+    print('\tMean Commanded Steer: %.5f' % means_steer.mean())
+    print('\tMean Slip: %.5f' % means_slip.mean())
+    print('\tMean Distance Error: %.5f' % means_dist.mean())
+    print('\tMean Velocity: %.5f' % means_vel.mean())
+    print()
 
     plt.show()
 
