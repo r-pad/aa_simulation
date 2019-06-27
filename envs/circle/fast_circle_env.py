@@ -36,7 +36,6 @@ class FastCircleEnv(CircleEnv):
         """
         Reward function definition.
         """
-        observation = self.state_to_observation(state)
         r = self.radius
         x, y, _, x_dot, y_dot, _ = state
         velocity = np.sqrt(x_dot**2 + y_dot**2)
@@ -45,7 +44,6 @@ class FastCircleEnv(CircleEnv):
         reward = velocity**2
 
         info = {}
-        info['observation'] = observation
         info['dist'] = distance
         info['vel'] = velocity
         return reward, info

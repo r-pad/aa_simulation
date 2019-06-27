@@ -79,7 +79,6 @@ class StraightEnv(VehicleEnv):
         """
         Reward function definition.
         """
-        observation = self.state_to_observation(state)
         _, y, _, x_dot, y_dot, _ = state
         velocity = np.sqrt(x_dot**2 + y_dot**2)
         distance = y
@@ -88,7 +87,6 @@ class StraightEnv(VehicleEnv):
         reward -= self._lambda1 * (velocity - self.target_velocity)**2
 
         info = {}
-        info['observation'] = observation
         info['dist'] = distance
         info['vel'] = velocity
         return reward, info

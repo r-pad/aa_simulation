@@ -109,7 +109,8 @@ class VehicleEnv(Env):
                 self._dt)
         self._state = nextstate
         reward, info = self.get_reward(nextstate, action)
-        return Step(observation=info['observation'], reward=reward, done=False,
+        observation = self.state_to_observation
+        return Step(observation=observation, reward=reward, done=False,
                 dist=info['dist'], vel=info['vel'], kappa=self._model.kappa)
 
 
@@ -165,7 +166,8 @@ class VehicleEnv(Env):
     def get_reward(self, state, action):
         """
         Reward function definition. Returns reward, a scalar, and info, a
-        dictionary that must contain the keys 'dist', 'vel', and 'observation'.
+        dictionary that must contain the keys 'dist' (closest distance to
+        trajectory) and 'vel' (current velocity).
         """
         raise NotImplementedError
 

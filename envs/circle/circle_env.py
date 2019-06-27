@@ -82,7 +82,6 @@ class CircleEnv(VehicleEnv):
         reward -= self._lambda2 * max(0, abs(theta) - np.pi/2)**2
 
         info = {}
-        info['observation'] = observation
         info['dist'] = distance
         info['vel'] = velocity
         return reward, info
