@@ -4,8 +4,8 @@
 @author: edwardahn
 
 Train local planner using CPO so that a vehicle can follow a circular
-trajectory with an arbitrary curvature at a target velocity within
-an epsilon distance away from the trajectory.
+trajectory with an arbitrary curvature at a target velocity without ever
+driving away from the circle.
 
 ------------------------------------------------------------
 TODO:
@@ -103,7 +103,6 @@ def run_task(vv, log_dir=None, exp_name=None):
 
     safety_constraint = CircleSafetyConstraint(
         max_value=1.0,
-        eps=vv['eps'],
         baseline=safety_baseline
     )
 
@@ -168,7 +167,6 @@ def main():
     vg.add('target_velocity', [1.0])
     vg.add('radius', [1.0])
     vg.add('dt', [0.1])
-    vg.add('eps', [0.5])
     vg.add('model_type', ['BrushTireModel'])
     vg.add('robot_type', [robot_type])
     vg.add('pretrained', [use_pretrained])
