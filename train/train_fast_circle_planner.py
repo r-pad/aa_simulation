@@ -4,7 +4,7 @@
 @author: edwardahn
 
 Train local planner using CPO so that a vehicle can follow a circular
-trajectory with an arbitrary curvature at a target velocity within
+trajectory with an arbitrary curvature as fast as possible within
 an epsilon distance away from the trajectory.
 
 ------------------------------------------------------------
@@ -31,7 +31,7 @@ from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.cpo.algos.safe.cpo import CPO
 from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
-from aa_simulation.envs.circle.safe_circle_env import SafeCircleEnv
+from aa_simulation.envs.circle.fast_circle_env import FastCircleEnv
 from aa_simulation.safety_constraints.circle import CircleSafetyConstraint
 
 # Pre-trained policy and baseline
@@ -53,7 +53,7 @@ def run_task(vv, log_dir=None, exp_name=None):
         raise ValueError('Unrecognized robot type')
 
     # Load environment
-    env = SafeCircleEnv(
+    env = FastCircleEnv(
         target_velocity=vv['target_velocity'],
         radius=vv['radius'],
         dt=vv['dt'],
