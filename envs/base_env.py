@@ -63,7 +63,6 @@ class VehicleEnv(Env):
         self._renderer = None
 
 
-
     @property
     def observation_space(self):
         return Box(low=-np.inf, high=np.inf, shape=(6,))
@@ -109,7 +108,7 @@ class VehicleEnv(Env):
                 self._dt)
         self._state = nextstate
         reward, info = self.get_reward(nextstate, action)
-        observation = self.state_to_observation
+        observation = self.state_to_observation(nextstate)
         return Step(observation=observation, reward=reward, done=False,
                 dist=info['dist'], vel=info['vel'], kappa=self._model.kappa)
 
@@ -128,31 +127,23 @@ class VehicleEnv(Env):
         """
         Log extra information per iteration based on collected paths.
         """
-        log_kappa = False
-        if self.__class__.__name__ == 'CircleEnv' \
-                or self.__class__.__name__ == 'FastCircleEnv':
-            log_kappa = True
-
         dists = []
         vels = []
         kappas = []
         for path in paths:
             dists.append(path['env_infos']['dist'])
             vels.append(path['env_infos']['vel'])
-            if log_kappa:
-                kappas.append(path['env_infos']['kappa'])
+            kappas.append(path['env_infos']['kappa'])
         dists = np.abs(dists)
         vels = np.abs(vels)
-        if log_kappa:
-            kappas = np.abs(kappas)
+        kappas = np.abs(kappas)
 
         logger.record_tabular('AverageAbsDistance', np.mean(dists))
         logger.record_tabular('AverageAbsVelocity', np.mean(vels))
         logger.record_tabular('MaxAbsDistance', np.max(dists))
         logger.record_tabular('MaxAbsVelocity', np.max(vels))
-        if log_kappa:
-            logger.record_tabular('AverageKappa', np.mean(kappas))
-            logger.record_tabular('MaxKappa', np.max(kappas))
+        logger.record_tabular('AverageKappa', np.mean(kappas))
+        logger.record_tabular('MaxKappa', np.max(kappas))
 
 
     @property
