@@ -75,26 +75,11 @@ class StraightEnv(VehicleEnv):
         return state
 
 
-    def reset(self):
-        """
-        Reset environment back to original state.
-        """
-        self._action = None
-        self._state = self.get_initial_state
-        observation = self._state_to_observation(self._state)
-
-        # Reset renderer if available
-        if self._renderer is not None:
-            self._renderer.reset()
-
-        return observation
-
-
     def get_reward(self, state, action):
         """
         Reward function definition.
         """
-        observation = self._state_to_observation(state)
+        observation = self.state_to_observation(state)
         _, y, _, x_dot, y_dot, _ = state
         velocity = np.sqrt(x_dot**2 + y_dot**2)
         distance = y
@@ -136,7 +121,7 @@ class StraightEnv(VehicleEnv):
         return np.array([new_x, new_y, new_yaw, x_dot, y_dot, yaw_dot])
 
 
-    def _state_to_observation(self, state):
+    def state_to_observation(self, state):
         """
         Prepare state to be read as input to neural network.
         """

@@ -66,26 +66,11 @@ class CircleEnv(VehicleEnv):
         return state
 
 
-    def reset(self):
-        """
-        Reset environment back to original state.
-        """
-        self._action = None
-        self._state = self.get_initial_state
-        observation = self._state_to_relative(self._state)
-
-        # Reset renderer if available
-        if self._renderer is not None:
-            self._renderer.reset()
-
-        return observation
-
-
     def get_reward(self, state, action):
         """
         Reward function definition.
         """
-        observation = self._state_to_relative(state)
+        observation = self.state_to_observation(state)
         r = self.radius
         x, y, _, x_dot, y_dot, _ = state
         dx, theta, _, _ = observation
@@ -103,7 +88,7 @@ class CircleEnv(VehicleEnv):
         return reward, info
 
 
-    def _state_to_relative(self, state):
+    def state_to_observation(self, state):
         """
         Convert state [x, y, yaw, x_dot, y_dot, yaw_dot] to
         [dx, theta, ddx, dtheta]

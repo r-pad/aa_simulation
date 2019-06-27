@@ -89,7 +89,7 @@ class VehicleEnv(Env):
         """
         self._action = None
         self._state = self.get_initial_state
-        observation = np.copy(self._state)
+        observation = self.state_to_observation(self._state)
 
         # Reset renderer if available
         if self._renderer is not None:
@@ -161,10 +161,18 @@ class VehicleEnv(Env):
         """
         raise NotImplementedError
 
+
     def get_reward(self, state, action):
         """
         Reward function definition. Returns reward, a scalar, and info, a
         dictionary that must contain the keys 'dist', 'vel', and 'observation'.
+        """
+        raise NotImplementedError
+
+
+    def state_to_observation(self, state):
+        """
+        Prepare state to be read as input to neural network.
         """
         raise NotImplementedError
 
