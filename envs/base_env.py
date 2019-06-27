@@ -10,7 +10,7 @@ import yaml
 
 import numpy as np
 
-from rllab.envs.base import Env
+from rllab.envs.base import Env, Step
 from rllab.misc import logger
 from rllab.spaces import Box
 
@@ -44,6 +44,7 @@ class VehicleEnv(Env):
             raise ValueError('Unrecognized robot type')
 
         # Instantiate vehicle model for simulation
+        self._state = None
         self._action = None
         self.target_velocity = target_velocity
         if model_type == 'BrushTireModel':
@@ -60,6 +61,7 @@ class VehicleEnv(Env):
 
         # Instantiates object handling simulation renderings
         self._renderer = None
+
 
 
     @property
@@ -100,7 +102,15 @@ class VehicleEnv(Env):
         """
         Move one iteration forward in simulation.
         """
-        raise NotImplementedError
+        if action[0] < 0:   # Only allow forward direction
+            action[0] = 0
+        self._action = action
+        nextstate = self._model.state_transition(self._state, action,
+                self._dt)
+        self._state = nextstate
+        reward, info = self.get_reward(nextstate, action)
+        return Step(observation=info['observation'], reward=reward, done=False,
+                dist=info['dist'], vel=info['vel'], kappa=self._model.kappa)
 
 
     def render(self):
@@ -153,7 +163,8 @@ class VehicleEnv(Env):
 
     def get_reward(self, state, action):
         """
-        Reward function definition.
+        Reward function definition. Returns reward, a scalar, and info, a
+        dictionary that must contain the keys 'dist', 'vel', and 'observation'.
         """
         raise NotImplementedError
 

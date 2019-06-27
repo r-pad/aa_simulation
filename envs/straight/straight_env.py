@@ -8,7 +8,6 @@ Environment for training a local planner to move in a straight line.
 
 import numpy as np
 
-from rllab.envs.base import Step
 from rllab.spaces import Box
 
 from aa_simulation.envs.base_env import VehicleEnv
@@ -76,24 +75,6 @@ class StraightEnv(VehicleEnv):
         return state
 
 
-    def step(self, action):
-        """
-        Move one iteration forward in simulation.
-        """
-        # Get next state from dynamics equations
-        self._action = action
-        if action[0] < 0:   # Only allow forward direction
-            action[0] = 0
-        nextstate = self._model.state_transition(self._state, action,
-                self._dt)
-        self._state = nextstate
-        next_observation = self._state_to_observation(nextstate)
-        reward, info = self.get_reward(nextstate, action)
-        return Step(observation=next_observation, reward=reward,
-                done=False, dist=info['dist'], vel=info['vel'],
-                kappa=self._model.kappa)
-
-
     def reset(self):
         """
         Reset environment back to original state.
@@ -113,6 +94,7 @@ class StraightEnv(VehicleEnv):
         """
         Reward function definition.
         """
+        observation = self._state_to_observation(state)
         _, y, _, x_dot, y_dot, _ = state
         velocity = np.sqrt(x_dot**2 + y_dot**2)
         distance = y
@@ -121,6 +103,7 @@ class StraightEnv(VehicleEnv):
         reward -= self._lambda1 * (velocity - self.target_velocity)**2
 
         info = {}
+        info['observation'] = observation
         info['dist'] = distance
         info['vel'] = velocity
         return reward, info

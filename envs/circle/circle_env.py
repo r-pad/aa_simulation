@@ -9,7 +9,6 @@ arbitrary curvature.
 
 import numpy as np
 
-from rllab.envs.base import Step
 from rllab.spaces import Box
 
 from aa_simulation.envs.base_env import VehicleEnv
@@ -65,21 +64,6 @@ class CircleEnv(VehicleEnv):
         state[4] = y_dot
         state[5] = yaw_dot
         return state
-
-
-    def step(self, action):
-        """
-        Move one iteration forward in simulation.
-        """
-        if action[0] < 0:   # Only allow forward direction
-            action[0] = 0
-        self._action = action
-        nextstate = self._model.state_transition(self._state, action,
-                self._dt)
-        self._state = nextstate
-        reward, info = self.get_reward(nextstate, action)
-        return Step(observation=info['observation'], reward=reward, done=False,
-                dist=info['dist'], vel=info['vel'], kappa=self._model.kappa)
 
 
     def reset(self):
