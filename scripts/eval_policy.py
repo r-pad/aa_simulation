@@ -182,11 +182,16 @@ def main():
     means_dist = np.array(means_dist)
     means_vel = np.array(means_vel)
     print('Averaged statistics over %d rollout(s):' % args.num_paths)
-    print('\tMean Commanded Speed: %.5f' % means_speed.mean())
-    print('\tMean Commanded Steer: %.5f' % means_steer.mean())
-    print('\tMean Slip: %.5f' % means_slip.mean())
-    print('\tMean Distance Error: %.5f' % means_dist.mean())
-    print('\tMean Velocity: %.5f' % means_vel.mean())
+    print('\tMean Commanded Speed:\t%.5f +/- %.5f'
+            % (means_speed.mean(), means_speed.std()))
+    print('\tMean Commanded Steer:\t%.5f +/- %.5f'
+            % (means_steer.mean(), means_steer.std()))
+    print('\tMean Slip:\t\t%.5f +/- %.5f'
+            % (means_slip.mean(), means_slip.std()))
+    print('\tMean Distance Error:\t%.5f +/- %.5f'
+            % (means_dist.mean(), means_dist.std()))
+    print('\tMean Velocity:\t\t%.5f +/- %.5f'
+            % (means_vel.mean(), means_vel.std()))
     print()
 
     plt.show()
