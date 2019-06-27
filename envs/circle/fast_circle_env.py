@@ -4,13 +4,6 @@
 @author: edwardahn
 
 Environment for training local planner to follow circles as fast as possible.
-
-----------------------------------------------------------------------
-TODO:
-    - Implement get_reward() function
-    - Remove np.square
-    - Write code that follows structure to circle and straight envs
-----------------------------------------------------------------------
 """
 
 import numpy as np
@@ -39,28 +32,21 @@ class FastCircleEnv(CircleEnv):
         )
 
 
-    def step(self, action):
+    def get_reward(self, state, action):
         """
-        Move one iteration forward in simulation.
+        Reward function definition.
         """
-        # Get next state from dynamics equations
-        if action[0] < 0:   # Only allow forward direction
-            action[0] = 0
-        self._action = action
-        nextstate = self._model.state_transition(self._state, action,
-                self._dt)
-        next_observation = self._state_to_relative(nextstate)
-
-        # Assign reward to transition
-        self._state = nextstate
-        done = False
+        observation = self.state_to_observation(state)
         r = self.radius
-        x, y, _, x_dot, y_dot, _ = nextstate
-        velocity = np.sqrt(np.square(x_dot) + np.square(y_dot))
+        x, y, _, x_dot, y_dot, _ = state
+        velocity = np.sqrt(x_dot**2 + y_dot**2)
         distance = r - np.sqrt(x**2 + y**2)
+
         reward = velocity**2
 
-        return Step(observation=next_observation, reward=reward,
-                done=done, dist=distance, vel=velocity,
-                kappa=self._model.kappa)
+        info = {}
+        info['observation'] = observation
+        info['dist'] = distance
+        info['vel'] = velocity
+        return reward, info
 
