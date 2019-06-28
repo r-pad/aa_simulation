@@ -3,28 +3,27 @@
 """
 @author: edwardahn
 
-Safety constraint for following circle while never driving away from the
-circle
+Safety constraint for following circle within epsilon distance away.
 """
-
-import numpy as np
 
 from rllab.core.serializable import Serializable
 from sandbox.cpo.safety_constraints.base import SafetyConstraint
 
 
-class CircleSafetyConstraint(SafetyConstraint, Serializable):
+class FastCircleSafetyConstraint(SafetyConstraint, Serializable):
     """
-    Always drive towards the circle
+    Stay within epsilon distance from circular trajectory.
     """
 
-    def __init__(self, max_value=1.0, **kwargs):
+    def __init__(self, max_value=1.0, eps=1.0, **kwargs):
         """
         :param max_value: Upper threshold for constraint return
+        :param eps: Stay at most epsilon distance away from circle
         """
         self.max_value = max_value
+        self.eps = eps
         Serializable.quick_init(self, locals())
-        super(CircleSafetyConstraint, self).__init__(max_value, **kwargs)
+        super(FastCircleSafetyConstraint, self).__init__(max_value, **kwargs)
 
 
     def evaluate(self, path):
@@ -32,12 +31,6 @@ class CircleSafetyConstraint(SafetyConstraint, Serializable):
         Return True if constraint is violated.
         """
         observations = path['observations']
-        actions = path['actions']
         dx = observations[:, 0]
-        theta = observations[:, 1]
-        steer = actions[:, 1]
-
-        # Positive if driving away from circle, negative otherwise
-        driving_away = -steer * (np.sign(theta) + np.sign(dx))
-        return driving_away > 0
+        return dx >= self.eps
 
