@@ -128,7 +128,7 @@ def run_task(vv, log_dir=None, exp_name=None):
         safety_constraint=safety_constraint,
         batch_size=600,
         max_path_length=env.horizon,
-        n_itr=1000,
+        n_itr=600,
         discount=0.99,
         step_size=trpo_stepsize,
         gae_lambda=0.95,

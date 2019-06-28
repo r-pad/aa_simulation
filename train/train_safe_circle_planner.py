@@ -103,6 +103,7 @@ def run_task(vv, log_dir=None, exp_name=None):
 
     safety_constraint = CircleSafetyConstraint(
         max_value=1.0,
+        eps=vv['eps'],
         baseline=safety_baseline
     )
 
@@ -113,7 +114,7 @@ def run_task(vv, log_dir=None, exp_name=None):
         safety_constraint=safety_constraint,
         batch_size=600,
         max_path_length=env.horizon,
-        n_itr=1000,
+        n_itr=600,
         discount=0.99,
         step_size=trpo_stepsize,
         gae_lambda=0.95,
@@ -167,6 +168,7 @@ def main():
     vg.add('target_velocity', [1.0])
     vg.add('radius', [1.0])
     vg.add('dt', [0.1])
+    vg.add('eps', [0.01])
     vg.add('model_type', ['BrushTireModel'])
     vg.add('robot_type', [robot_type])
     vg.add('pretrained', [use_pretrained])

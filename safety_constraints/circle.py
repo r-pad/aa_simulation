@@ -10,7 +10,7 @@ from rllab.core.serializable import Serializable
 from sandbox.cpo.safety_constraints.base import SafetyConstraint
 
 
-class FastCircleSafetyConstraint(SafetyConstraint, Serializable):
+class CircleSafetyConstraint(SafetyConstraint, Serializable):
     """
     Stay within epsilon distance from circular trajectory.
     """
@@ -23,7 +23,7 @@ class FastCircleSafetyConstraint(SafetyConstraint, Serializable):
         self.max_value = max_value
         self.eps = eps
         Serializable.quick_init(self, locals())
-        super(FastCircleSafetyConstraint, self).__init__(max_value, **kwargs)
+        super(CircleSafetyConstraint, self).__init__(max_value, **kwargs)
 
 
     def evaluate(self, path):
