@@ -26,7 +26,8 @@ class FastCircleEnv(CircleEnv):
             dt=0.035,
             model_type='BrushTireModel',
             robot_type='RCCar',
-            algo='TRPO'
+            algo='TRPO',
+            eps=0.05
     ):
         """
         Initialize super class parameters, obstacles and radius.
@@ -40,6 +41,7 @@ class FastCircleEnv(CircleEnv):
         )
 
         self.algo = algo
+        self.eps = eps
 
 
     def get_reward(self, state, action):
@@ -51,7 +53,14 @@ class FastCircleEnv(CircleEnv):
         velocity = np.sqrt(x_dot**2 + y_dot**2)
         distance = r - np.sqrt(x**2 + y**2)
 
-        reward = velocity**2
+        if self.algo == 'TRPO':
+            reward = velocity**2
+            if distance > self.eps:
+                reward -= 10000
+        elif self.algo == 'CPO':
+            reward = velocity**2
+        else:
+            raise ValueError('Algorithm type unrecognized')
 
         info = {}
         info['dist'] = distance

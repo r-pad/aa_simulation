@@ -54,7 +54,9 @@ def run_task(vv, log_dir=None, exp_name=None):
         radius=vv['radius'],
         dt=vv['dt'],
         model_type=vv['model_type'],
-        robot_type=vv['robot_type']
+        robot_type=vv['robot_type'],
+        algo=vv['algo'],
+        eps=vv['eps']
     )
 
     # Save variant information for comparison plots
@@ -157,7 +159,7 @@ def run_task(vv, log_dir=None, exp_name=None):
             step_size=trpo_stepsize,
             gae_lambda=0.95,
             safety_gae_lambda=1,
-            optimizer_args={'subsample_factor':trpo_subsample_factor},
+            optimizer_args={'subsample_factor': trpo_subsample_factor},
             plot=False
         )
     algo.train()
@@ -166,7 +168,7 @@ def run_task(vv, log_dir=None, exp_name=None):
 def parse_arguments():
     parser = argparse.ArgumentParser()
     parser.add_argument('--algo', choices=['trpo', 'cpo'],
-            default='cpo', help='Type of algorithm to use to train agent')
+            default='trpo', help='Type of algorithm to use to train agent')
     parser.add_argument('--network', type=str,
             help='Path to snapshot file of pre-trained network')
     args = parser.parse_args()
