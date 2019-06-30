@@ -3,14 +3,13 @@
 """
 @author: edwardahn
 
-Train local planner using CPO so that a vehicle can follow a circular
+Train local planner using TRPO or CPO so that a vehicle can follow a circular
 trajectory with an arbitrary curvature as fast as possible within
 an epsilon distance away from the trajectory.
 
 ------------------------------------------------------------
 TODO:
     - reset variance for fine-tuning
-    - make variants the same as circle/straight planner.py
 ------------------------------------------------------------
 """
 
@@ -22,6 +21,7 @@ import numpy as np
 import lasagne.init as LI
 import lasagne.nonlinearities as LN
 
+from rllab.algos.trpo import TRPO
 from rllab.core.network import MLP
 from rllab.envs.base import Env
 from rllab.misc import logger
@@ -107,26 +107,41 @@ def run_task(vv, log_dir=None, exp_name=None):
         baseline=safety_baseline
     )
 
-    algo = CPO(
-        env=env,
-        policy=policy,
-        baseline=baseline,
-        safety_constraint=safety_constraint,
-        batch_size=600,
-        max_path_length=env.horizon,
-        n_itr=1000,
-        discount=0.99,
-        step_size=trpo_stepsize,
-        gae_lambda=0.95,
-        safety_gae_lambda=1,
-        optimizer_args={'subsample_factor':trpo_subsample_factor},
-        plot=False
-    )
+    if vv['algo'] == 'TRPO':
+        algo = TRPO(
+            env=env,
+            policy=policy,
+            baseline=baseline,
+            batch_size=600,
+            max_path_length=env.horizon,
+            n_itr=600,
+            discount=0.99,
+            step_size=trpo_stepsize,
+            plot=False
+        )
+    else:
+        algo = CPO(
+            env=env,
+            policy=policy,
+            baseline=baseline,
+            safety_constraint=safety_constraint,
+            batch_size=600,
+            max_path_length=env.horizon,
+            n_itr=600,
+            discount=0.99,
+            step_size=trpo_stepsize,
+            gae_lambda=0.95,
+            safety_gae_lambda=1,
+            optimizer_args={'subsample_factor':trpo_subsample_factor},
+            plot=False
+        )
     algo.train()
 
 
 def parse_arguments():
     parser = argparse.ArgumentParser()
+    parser.add_argument('--algo', choices=['trpo', 'cpo'],
+            default='cpo', help='Type of algorithm to use to train agent')
     parser.add_argument('--network', type=str,
             help='Path to snapshot file of pre-trained network')
     args = parser.parse_args()
@@ -153,7 +168,10 @@ def main():
     # Non-configurable parameters (do not change)
     vg.add('trajectory', ['Circle'])
     vg.add('objective', ['Fast'])
-    vg.add('algo', ['CPO'])
+    if args.algo == 'trpo':
+        vg.add('algo', ['TRPO'])
+    else:
+        vg.add('algo', ['CPO'])
 
     # Configurable parameters
     #   Options for model_type: 'BrushTireModel', 'LinearTireModel'
@@ -187,3 +205,4 @@ def main():
 
 if __name__ == '__main__':
     main()
+
