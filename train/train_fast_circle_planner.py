@@ -4,27 +4,23 @@
 @author: edwardahn
 
 Train local planner using TRPO or CPO so that a vehicle can follow a circular
-trajectory with an arbitrary curvature as fast as possible within
-an epsilon distance away from the trajectory.
-
-------------------------------------------------------------
-TODO:
-    - reset variance for fine-tuning
-------------------------------------------------------------
+trajectory with an arbitrary curvature as fast as possible.
 """
 
 import argparse
 
 import joblib
+import lasagne.init as LI
+import lasagne.layers as L
+import lasagne.nonlinearities as LN
 import numpy as np
 
-import lasagne.init as LI
-import lasagne.nonlinearities as LN
-
 from rllab.algos.trpo import TRPO
+from rllab.core.lasagne_layers import ParamLayer
+from rllab.core.lasagne_powered import LasagnePowered
 from rllab.core.network import MLP
 from rllab.envs.base import Env
-from rllab.misc import logger
+from rllab.misc import ext, logger
 from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
@@ -65,6 +61,13 @@ def run_task(vv, log_dir=None, exp_name=None):
     variant_file = logger.get_snapshot_dir() + '/variant.json'
     logger.log_variant(variant_file, vv)
 
+    # Set variance for each action component separately for exploration
+    # Note: We set the variance manually because we are not scaling our
+    #       action space during training.
+    init_std_speed = vv['target_velocity'] / 4
+    init_std_steer = np.pi / 6
+    init_std = [init_std_speed, init_std_steer]
+
     # Build policy and baseline networks
     # Note: Mean of policy network set to analytically computed values for
     #       faster training (rough estimates for RL to finetune).
@@ -74,8 +77,12 @@ def run_task(vv, log_dir=None, exp_name=None):
         target_steering = np.arctan(wheelbase / vv['radius'])  # CCW
         output_mean = np.array([vv['target_velocity'], target_steering])
         hidden_sizes = (32, 32)
-        W_gain = 0.1
-        init_std = 0.1
+
+        # In mean network, allow output b values to dominate final output
+        # value by constraining the magnitude of the output W matrix. This is
+        # to allow faster learning. These numbers are arbitrarily chosen.
+        W_gain = min(vv['target_velocity'] / 5, np.pi / 15)
+
         mean_network = MLP(
             input_shape=(env.spec.observation_space.flat_dim,),
             output_dim=env.spec.action_space.flat_dim,
@@ -94,6 +101,24 @@ def run_task(vv, log_dir=None, exp_name=None):
         baseline = LinearFeatureBaseline(
             env_spec=env.spec,
             target_key='returns'
+        )
+
+    # Reset variance to re-enable exploration when using pre-trained networks
+    else:
+        policy._l_log_std = ParamLayer(
+            policy._mean_network.input_layer,
+            num_units=env.spec.action_space.flat_dim,
+            param=LI.Constant(np.log(init_std)),
+            name='output_log_std',
+            trainable=True
+        )
+        obs_var = policy._mean_network.input_layer.input_var
+        mean_var, log_std_var = L.get_output([policy._l_mean, policy._l_log_std])
+        policy._log_std_var = log_std_var
+        LasagnePowered.__init__(policy, [policy._l_mean, policy._l_log_std])
+        policy._f_dist = ext.compile_function(
+            inputs=[obs_var],
+            outputs=[mean_var, log_std_var]
         )
 
     safety_baseline = LinearFeatureBaseline(
