@@ -141,7 +141,7 @@ def run_task(vv, log_dir=None, exp_name=None):
             baseline=baseline,
             batch_size=600,
             max_path_length=env.horizon,
-            n_itr=600,
+            n_itr=1000,
             discount=0.99,
             step_size=trpo_stepsize,
             plot=False
@@ -154,7 +154,7 @@ def run_task(vv, log_dir=None, exp_name=None):
             safety_constraint=safety_constraint,
             batch_size=600,
             max_path_length=env.horizon,
-            n_itr=600,
+            n_itr=1200,
             discount=0.99,
             step_size=trpo_stepsize,
             gae_lambda=0.95,

@@ -51,12 +51,12 @@ class FastCircleEnv(CircleEnv):
         r = self.radius
         x, y, _, x_dot, y_dot, _ = state
         velocity = np.sqrt(x_dot**2 + y_dot**2)
-        distance = r - np.sqrt(x**2 + y**2)
+        distance = np.sqrt(x**2 + y**2) - r
 
         if self.algo == 'TRPO':
             reward = velocity**2
-            if distance > self.eps:
-                reward -= 10000
+            if distance >= self.eps:
+                reward -= 1000000
         elif self.algo == 'CPO':
             reward = velocity**2
         else:
