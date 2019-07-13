@@ -47,9 +47,14 @@ class _Renderer(object):
             arc = patches.Arc((0, 0), 2, 2, 0, 0, 360, color='c', ls=':')
             self._ax.add_patch(arc)
         elif env_type == 'FastCircleEnv':
+            eps = 0.05
+            self._ax.set_xlim(-1.5, 1.5)
+            self._ax.set_ylim(-1.5, 1.5)
+            arc = patches.Arc((0, 0), 2-eps, 2-eps, 0, 0, 360, color='r', ls=':')
+            self._ax.add_patch(arc)
             arc = patches.Arc((0, 0), 2, 2, 0, 0, 360, color='c')
             self._ax.add_patch(arc)
-            arc = patches.Arc((0, 0), 3, 3, 0, 0, 360, color='r', ls=':')
+            arc = patches.Arc((0, 0), 2+eps, 2+eps, 0, 0, 360, color='r', ls=':')
             self._ax.add_patch(arc)
 
         # Draw remaining simulation
