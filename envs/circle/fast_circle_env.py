@@ -26,6 +26,8 @@ class FastCircleEnv(CircleEnv):
             dt=0.035,
             model_type='BrushTireModel',
             robot_type='RCCar',
+            mu_s=1.37,
+            mu_k=1.96,
             algo='TRPO',
             eps=0.05
     ):
@@ -37,7 +39,9 @@ class FastCircleEnv(CircleEnv):
             radius=radius,
             dt=dt,
             model_type=model_type,
-            robot_type=robot_type
+            robot_type=robot_type,
+            mu_s=mu_s,
+            mu_k=mu_k
         )
 
         self.algo = algo

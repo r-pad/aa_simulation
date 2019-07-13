@@ -20,7 +20,7 @@ class DynamicBicycleModel(object):
     Vehicle modeled as a three degrees of freedom dynamic bicycle model.
     """
 
-    def __init__(self, params):
+    def __init__(self, params, mu_s=1.37, mu_k=1.96):
         """
         Initialize model parameters from dictionary format to instance
         variables.
@@ -37,11 +37,10 @@ class DynamicBicycleModel(object):
         self.C_x = params['C_x']            # Longitudinal stiffness
         self.C_alpha = params['C_alpha']    # Cornering stiffness
         self.I_z = params['I_z']            # Moment of inertia
-        self.mu = params['mu']              # Coeff. of friction
-        self.mu_s = params['mu_s']          # Sliding coeff. of friction
 
-        # Minimum velocity needed to overcome static friction
-        self.stiction_velocity = 0.8
+        # Static and kinetic coefficients of friction
+        self.mu_s = mu_s
+        self.mu_k = mu_k
 
         # Slip ratio
         self.kappa = None
@@ -143,8 +142,8 @@ class LinearTireModel(DynamicBicycleModel):
     Use a dynamic bicycle model with a linear tire model for tire dynamics.
     """
 
-    def __init__(self, params):
-        super(LinearTireModel, self).__init__(params)
+    def __init__(self, params, mu_s, mu_k):
+        super(LinearTireModel, self).__init__(params, mu_s, mu_k)
 
 
     def _tire_dynamics_front(self, alpha):
@@ -164,8 +163,8 @@ class BrushTireModel(DynamicBicycleModel):
     Use a dynamic bicycle model with a brush tire model for tire dynamics.
     """
 
-    def __init__(self, params):
-        super(BrushTireModel, self).__init__(params)
+    def __init__(self, params, mu_s, mu_k):
+        super(BrushTireModel, self).__init__(params, mu_s, mu_k)
 
 
     def _tire_dynamics_front(self, alpha):
@@ -176,18 +175,18 @@ class BrushTireModel(DynamicBicycleModel):
             alpha = (np.pi-abs(alpha))*np.sign(alpha)
 
         # Compute slip angle where total sliding occurs alpha_sl
-        alpha_sl = np.arctan(3*self.mu*self.load_f/self.C_alpha)
+        alpha_sl = np.arctan(3*self.mu_s*self.load_f/self.C_alpha)
 
         if abs(alpha) <= alpha_sl:
             tan = np.tan(alpha)
             first = -self.C_alpha * tan
-            second = self.C_alpha**2 / (3*self.mu*self.load_f) *\
+            second = self.C_alpha**2 / (3*self.mu_s*self.load_f) *\
                     np.abs(tan) * tan
-            third = -self.C_alpha**3 / (27*self.mu**2*self.load_f**2) *\
+            third = -self.C_alpha**3 / (27*self.mu_s**2*self.load_f**2) *\
                     tan**3
             Fy = first + second + third
         else:
-            Fy = -self.mu*self.load_f*np.sign(alpha)
+            Fy = -self.mu_s*self.load_f*np.sign(alpha)
 
         return Fy
 
@@ -199,7 +198,7 @@ class BrushTireModel(DynamicBicycleModel):
             K = 0
         # Infinite slip, longitudinal saturation
         elif abs(v_x) < 0.01:
-            Fx = np.sign(wheel_vx)*self.mu*self.load_r
+            Fx = np.sign(wheel_vx)*self.mu_s*self.load_r
             Fy = 0
             return Fx, Fy
         else:
@@ -223,11 +222,11 @@ class BrushTireModel(DynamicBicycleModel):
         gamma = np.sqrt( self.C_x**2 * (K/(1+K))**2 + self.C_alpha**2
                 * (np.tan(alpha)/(1+K))**2 )
 
-        if gamma <= 3*self.mu*self.load_r:
-            F = gamma - 1/(3*self.mu*self.load_r)*gamma**2 + \
-                    1/(27*self.mu**2*self.load_r**2)*gamma**3
+        if gamma <= 3*self.mu_s*self.load_r:
+            F = gamma - 1/(3*self.mu_s*self.load_r)*gamma**2 + \
+                    1/(27*self.mu_s**2*self.load_r**2)*gamma**3
         else:
-            F = self.mu_s * self.load_r
+            F = self.mu_k * self.load_r
 
         if gamma == 0:
             Fx = 0

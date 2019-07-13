@@ -55,7 +55,9 @@ def run_task(vv, log_dir=None, exp_name=None):
             radius=vv['radius'],
             dt=vv['dt'],
             model_type=vv['model_type'],
-            robot_type=vv['robot_type']
+            robot_type=vv['robot_type'],
+            mu_s=vv['mu_s'],
+            mu_k=vv['mu_k']
         )
     else:
         from aa_simulation.envs.circle.circle_env_ros import CircleEnvROS
@@ -221,6 +223,8 @@ def main():
     vg.add('eps', [0.05])
     vg.add('model_type', ['BrushTireModel'])
     vg.add('robot_type', [robot_type])
+    vg.add('mu_s', [1.37])
+    vg.add('mu_k', [1.96])
     vg.add('use_ros', [use_ros])
     vg.add('pretrained', [use_pretrained])
     print('Number of Configurations: ', len(vg.variants()))

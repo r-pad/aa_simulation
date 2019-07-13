@@ -34,7 +34,9 @@ class VehicleEnv(Env):
             target_velocity=1.0,
             dt=0.035,
             model_type='BrushTireModel',
-            robot_type='RCCar'
+            robot_type='RCCar',
+            mu_s=1.37,
+            mu_k=1.96
     ):
         """
         Initialize environment parameters.
@@ -54,9 +56,9 @@ class VehicleEnv(Env):
         self._action = None
         self.target_velocity = target_velocity
         if model_type == 'BrushTireModel':
-            self._model = BrushTireModel(self._params)
+            self._model = BrushTireModel(self._params, mu_s, mu_k)
         elif model_type == 'LinearTireModel':
-            self._model = LinearTireModel(self._params)
+            self._model = LinearTireModel(self._params, mu_s, mu_k)
         else:
             raise ValueError('Invalid vehicle model type')
 
@@ -107,8 +109,11 @@ class VehicleEnv(Env):
         """
         Move one iteration forward in simulation.
         """
-        if action[0] < 0:   # Only allow forward direction
-            action[0] = 0
+        # Place limits on action based on mechanical constraints
+        action_min = [VehicleEnv._MIN_VELOCITY, -VehicleEnv._MAX_STEER_ANGLE]
+        action_max = [VehicleEnv._MAX_VELOCITY, VehicleEnv._MAX_STEER_ANGLE]
+        action = np.clip(action, a_min=action_min, a_max=action_max)
+
         self._action = action
         nextstate = self._model.state_transition(self._state, action,
                 self._dt)

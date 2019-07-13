@@ -55,6 +55,8 @@ def run_task(vv, log_dir=None, exp_name=None):
         dt=vv['dt'],
         model_type=vv['model_type'],
         robot_type=vv['robot_type'],
+        mu_s=vv['mu_s'],
+        mu_k=vv['mu_k'],
         algo=vv['algo'],
         eps=vv['eps']
     )
@@ -216,6 +218,8 @@ def main():
     vg.add('eps', [0.5])
     vg.add('model_type', ['BrushTireModel'])
     vg.add('robot_type', [robot_type])
+    vg.add('mu_s', [1.37])
+    vg.add('mu_k', [1.96])
     vg.add('pretrained', [use_pretrained])
     print('Number of Configurations: ', len(vg.variants()))
 

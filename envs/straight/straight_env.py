@@ -26,7 +26,9 @@ class StraightEnv(VehicleEnv):
             target_velocity=1.0,
             dt=0.035,
             model_type='BrushTireModel',
-            robot_type='RCCar'
+            robot_type='RCCar',
+            mu_s=1.37,
+            mu_k=1.96
     ):
         """
         Initialize super class parameters, obstacles and radius.
@@ -35,7 +37,9 @@ class StraightEnv(VehicleEnv):
             target_velocity=target_velocity,
             dt=dt,
             model_type=model_type,
-            robot_type=robot_type
+            robot_type=robot_type,
+            mu_s=mu_s,
+            mu_k=mu_k
         )
         self.robot_type = robot_type
 
