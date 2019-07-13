@@ -15,7 +15,6 @@ import lasagne.layers as L
 import lasagne.nonlinearities as LN
 import numpy as np
 
-from rllab.algos.trpo import TRPO
 from rllab.core.lasagne_layers import ParamLayer
 from rllab.core.lasagne_powered import LasagnePowered
 from rllab.core.network import MLP
@@ -25,6 +24,7 @@ from rllab.misc.instrument import run_experiment_lite, VariantGenerator
 from rllab.misc.resolve import load_class
 from rllab.policies.gaussian_mlp_policy import GaussianMLPPolicy
 from sandbox.cpo.algos.safe.cpo import CPO
+from sandbox.cpo.algos.safe.trpo_safe import TRPO
 from sandbox.cpo.baselines.linear_feature_baseline import LinearFeatureBaseline
 
 from aa_simulation.envs.circle.fast_circle_env import FastCircleEnv
@@ -138,12 +138,14 @@ def run_task(vv, log_dir=None, exp_name=None):
 
     if vv['algo'] == 'TRPO':
         algo = TRPO(
+            safety_constrained_optimizer=False,
+            safety_constraint=safety_constraint,
             env=env,
             policy=policy,
             baseline=baseline,
             batch_size=600,
             max_path_length=env.horizon,
-            n_itr=1000,
+            n_itr=1200,
             discount=0.99,
             step_size=trpo_stepsize,
             plot=False
@@ -210,12 +212,12 @@ def main():
     #       get_initial_state() in envs/circle/circle_env.py for more
     #       information.
     robot_type = 'RCCar'
-    seeds = [100, 200]
+    seeds = [100, 200, 300, 400, 500]
     vg.add('seed', seeds)
     vg.add('target_velocity', [1.0])
     vg.add('radius', [1.0])
     vg.add('dt', [0.1])
-    vg.add('eps', [0.5])
+    vg.add('eps', [0.05])
     vg.add('model_type', ['BrushTireModel'])
     vg.add('robot_type', [robot_type])
     vg.add('mu_s', [1.37])
